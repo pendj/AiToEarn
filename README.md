@@ -73,6 +73,22 @@ Nothing is uploaded to OBS/R2 or published by this command. Platform-readable
 URLs, actual provider acceptance and source freshness at send time are separate
 checks required before publishing.
 
+## R2 storage status
+
+The user-authorized bucket `luxsabers-social-media` was created through the
+existing Cloudflare MCP on 2026-09-17 at 13:19:30 UTC. It uses Standard storage
+and the default jurisdiction; automatic placement returned WNAM. Fresh metadata
+readback confirms r2.dev access is disabled and no custom domains are attached.
+This operation uploaded no objects and created no runtime credentials.
+
+AiToEarn still uses its existing private local object store. R2 integration
+requires credentials limited to this bucket, a scoped real upload/download
+check, cost controls, and an authorized platform-readable media access design.
+Do not reuse MCP OAuth as an application storage credential or enable public
+bucket access implicitly. No service restart or application rollback is needed
+for this bucket-only change. If it is later abandoned, verify it is still empty
+and unused and obtain deletion approval; never delete objects to force removal.
+
 ## Deployment
 
 Target: `ubuntu@163.192.46.78`; deployment directory `/srv/luxsabers-social`.
@@ -210,12 +226,12 @@ Do not use another application's key or subscribe to a paid service implicitly.
 
 Huawei OBS is disabled: its supplied key remains only in ignored local private
 configuration; the user reports the traffic package expired. No OBS requests or
-migration occurred. The user reports R2 is created; the existing Cloudflare MCP
-login now successfully lists buckets, with an empty list for the connected
-account's default jurisdiction. The target bucket name/page is still needed.
-No R2 bucket/object write, runtime credential setup or billable-use authorization
-has occurred. Billing metadata is permission-denied, which is not an expired
-login. Do not request a full re-login based on that denial alone.
+migration occurred. The private R2 bucket above now exists under specific user
+authorization; no uploads, runtime integration or approval for ongoing billable
+usage were added.
+R2 free allowances are account-wide, not a hard spending cap. Billing metadata
+is permission-denied, which is not an expired login. Do not request a full
+re-login based on that denial alone.
 
 The complete execution state and required real-service evidence are maintained
 in `superpowers/docs/plans/2026-09-17-101328-01-plan-aitoearn-deployment.md`.

@@ -59,9 +59,12 @@ package. Proposed isolated prefix is `luxsabers-social/`; do not read/list/chang
 other bucket contents. A key is stored disabled in ignored local `.private/obs.json`
 (0600); never print it. User reports the traffic package expired. No OBS request,
 credential transfer or integration has occurred. Do not assume a storage package
-covers requests/egress or mutate bucket-wide policies. User reports R2 is now
-created. Existing Cloudflare MCP successfully lists R2 buckets, but the connected
-account's default-jurisdiction list is empty. Await the bucket name/page to resolve
-the target; do not create another bucket or assume billable-use authority.
-Subscription metadata remains permission-denied; runtime storage credentials
-and actual object access are unverified. No R2 write occurred. Do not repeat login.
+covers requests/egress or mutate bucket-wide policies. User explicitly authorized
+one R2 bucket: `luxsabers-social-media` was created on 2026-09-17 at 13:19:30 UTC
+through the existing Cloudflare MCP. Readback confirms Standard storage, default
+jurisdiction, automatic placement reported as WNAM, r2.dev disabled and no custom
+domains. No files were uploaded, credentials created or application settings
+changed. Do not create another bucket or infer public access/billable-use
+authority. Runtime bucket-scoped credentials, object access and AiToEarn storage
+integration remain pending. Subscription metadata remains permission-denied;
+the existing MCP login works. Do not repeat login.

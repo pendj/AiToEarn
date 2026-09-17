@@ -162,8 +162,9 @@ These do not block independent installation and implementation work:
 - An applicable model connection and explicit permitted spend (currently zero).
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
-- The R2 bucket name/page, applicable runtime access and storage-cost authority;
-  JPEG derivatives for Models 003/018 are prepared privately, not publicly hosted.
+- Bucket-scoped R2 runtime access, integration and storage-cost authority;
+  `luxsabers-social-media` exists privately, but JPEG derivatives for Models
+  003/018 remain local and no cloud object access has been verified.
 
 ## OBS storage addition (2026-09-17)
 
@@ -196,14 +197,17 @@ These do not block independent installation and implementation work:
 - R2 Standard was proposed as an alternative: verified current official pricing
   includes 10 GB-month storage, 1M Class A and 10M Class B monthly operations,
   with no R2 egress charge. Allowances are account-wide, not a spending cap.
-  https://developers.cloudflare.com/r2/pricing/ . The user subsequently reports
-  R2 is created. `GET /accounts/{account_id}/r2/buckets` now returns HTTP 200 with
-  an empty bucket list for the connected account's default jurisdiction. Await
-  the bucket name/page to resolve whether this is R2 activation, a different
-  account or jurisdiction. No bucket/object write or runtime storage setup has
-  occurred; bucket creation and billable use are not inferred from this check.
-  Billing-subscription metadata remains permission-denied. Existing login is
-  valid; do not repeat authentication or claim object access is verified.
+  https://developers.cloudflare.com/r2/pricing/ . After an empty bucket-list
+  read, the user explicitly requested creation of one bucket. A same-name
+  preflight returned no buckets, then `POST /accounts/{account_id}/r2/buckets`
+  created `luxsabers-social-media` at 2026-09-17T13:19:30.855Z (HTTP 200).
+  Creation and fresh readback confirm Standard storage and automatic WNAM
+  placement in the default jurisdiction. The managed-domain read returned
+  `enabled: false`; the custom-domain list is empty. No object upload, runtime
+  credential creation, public access, DNS or application storage change occurred.
+  The application continues using its private local store. Billing-subscription
+  metadata remains permission-denied; do not repeat the valid MCP login or infer
+  runtime object access, free-only usage guarantees or billable-use authority.
 
 ## Work log
 
@@ -302,3 +306,8 @@ These do not block independent installation and implementation work:
   source files nor publishing authority changed. Local Python checks now total
   15; deployed application remains `814be0f`. No upload, provider call or public
   media availability is claimed.
+- 2026-09-17: Created the one authorized private Standard R2 bucket
+  `luxsabers-social-media`. Bucket metadata and both public-domain checks return
+  HTTP 200; r2.dev is disabled and no custom domain exists. Updated the same
+  project records; no server or commerce configuration changed. Object access,
+  runtime integration and actual generation/publishing remain unverified.
