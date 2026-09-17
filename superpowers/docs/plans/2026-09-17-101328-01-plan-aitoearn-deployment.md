@@ -162,7 +162,8 @@ These do not block independent installation and implementation work:
 - An applicable model connection and explicit permitted spend (currently zero).
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
-- Bucket-scoped R2 runtime access, integration and storage-cost authority;
+- Bucket-scoped R2 S3 keys (Object Read & Write on this bucket only), integration
+  and storage-cost authority; current MCP token-management discovery is denied.
   `luxsabers-social-media` exists privately, but JPEG derivatives for Models
   003/018 remain local and no cloud object access has been verified.
 
@@ -208,6 +209,15 @@ These do not block independent installation and implementation work:
   The application continues using its private local store. Billing-subscription
   metadata remains permission-denied; do not repeat the valid MCP login or infer
   runtime object access, free-only usage guarantees or billable-use authority.
+- Continuation scope: prepare bucket-only runtime credentials and a bounded
+  private storage check. Account and user token permission-group endpoints both
+  return Cloudflare error 9109 with the existing MCP; do not retry authentication
+  or substitute a broad administrator key. Local secure credential input and
+  R2 signing support can proceed, but cloud read/write and the application
+  storage switch require the dedicated credential. Keep the existing storage
+  and links unchanged until a real-service migration check passes. In particular,
+  the pinned upstream signs its public endpoint host; R2 upload routing, existing
+  object continuity and isolated server egress need verification before switching.
 
 ## Work log
 
@@ -311,3 +321,16 @@ These do not block independent installation and implementation work:
   HTTP 200; r2.dev is disabled and no custom domain exists. Updated the same
   project records; no server or commerce configuration changed. Object access,
   runtime integration and actual generation/publishing remain unverified.
+- 2026-09-17: Added hidden terminal credential input, a dedicated-target/private
+  file check and an explicitly invoked sub-1-KiB R2 roundtrip checker. Credentials
+  are not supplied yet; the real offline command exits with the expected missing
+  configuration message before any network access. A focused test reproduced
+  the gateway ignoring its configured signing region; it now honors `auto`.
+  R2 initialization is read-only and cannot create/configure a bucket with the
+  runtime credential. All 36 Node and 18 Python checks pass, including unknown
+  upload cleanup without a second PUT, public-access rejection and preservation
+  of unowned objects/configuration. Storage-service tests are synthetic, not
+  Cloudflare object-access evidence. No server update, R2 object request, token
+  creation, media migration, model call or publication occurred. The live
+  application remains release `814be0f`; cloud integration and overall goal
+  remain incomplete.

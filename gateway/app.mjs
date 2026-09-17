@@ -3,11 +3,12 @@ import secureSession from '@fastify/secure-session';
 import formbody from '@fastify/formbody';
 import rateLimit from '@fastify/rate-limit';
 import proxy from '@fastify/http-proxy';
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { SignJWT } from 'jose';
 import { scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { diskStatus } from '../automation/disk.mjs';
+import { storageClient } from './storage.mjs';
 
 const scrypt = promisify(scryptCallback);
 const marker = 'private-gateway-session-not-a-credential';
@@ -137,8 +138,8 @@ export async function buildApp(config, { enableProxy = true, automation } = {}) 
   app.get('/session/clear.js', async (_, reply) => reply.type('text/javascript').send("localStorage.removeItem('User');location.replace('/session/login');"));
 
   if (enableProxy) {
-    const s3 = new S3Client({ region: 'us-east-1', endpoint: config.storage.endpoint, forcePathStyle: true,
-      credentials: { accessKeyId: config.storage.accessKey, secretAccessKey: config.storage.secretKey } });
+    const s3 = storageClient(config.storage);
+    app.addHook('onClose', async () => s3.destroy());
     app.get('/oss/*', async (request, reply) => {
       try {
         const key = request.safePath.slice('/oss/'.length);

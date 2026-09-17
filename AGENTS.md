@@ -39,7 +39,7 @@ patch are deployed. Real zero-budget resume denial, idle paused queues with
 concurrency one, and automation-only restart with persistent pause pass.
 Desktop/mobile controls pass at 1440x1000 and 390x844; screenshots stay private.
 Models 003/018 pass source/image hashes and test-checkout checks from the server.
-No model/provider calls. Local tests: 27 Node and 15 Python tests pass.
+No model/provider calls. Local tests: 36 Node and 18 Python tests pass.
 `scripts/prepare-media.py` now prepares source-hash-matched private JPEGs without
 cropping, metadata or public upload. Both real Model 003/018 outputs and provenance
 sidecars are local under ignored `.runtime/prepared-media`; they are not public
@@ -67,4 +67,13 @@ domains. No files were uploaded, credentials created or application settings
 changed. Do not create another bucket or infer public access/billable-use
 authority. Runtime bucket-scoped credentials, object access and AiToEarn storage
 integration remain pending. Subscription metadata remains permission-denied;
-the existing MCP login works. Do not repeat login.
+the existing MCP login works. Both account/user token permission-group endpoints
+return 9109; do not repeat login or seek a broad administrator credential.
+Local `scripts/configure-r2.py` accepts hidden S3 key input for this bucket only
+and preserves existing files; it has not been run with real keys.
+`scripts/verify-r2.mjs --check-config` is offline; its explicitly invoked
+`--private-roundtrip` uses one sub-1-KiB temporary object, at most seven requests,
+no SDK retry, anonymous denial and ownership-checked removal. No real R2 object
+request has occurred. Gateway region support and read-only R2 initialization are
+local-only preparation; do not switch deployed storage before upload-signing
+host routing, old-object continuity, egress and real app checks are addressed.

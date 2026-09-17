@@ -121,6 +121,28 @@ test('proxy injects only a short-lived server JWT, not browser credentials', asy
   assert.ok(!response.body.includes(config.jwtSecret));
 });
 
+test('private storage downloads honor the configured signing region without leaking credentials', async t => {
+  let authorization;
+  const backend = createServer((req, res) => {
+    authorization = req.headers.authorization;
+    res.setHeader('content-type', 'image/jpeg');
+    res.end('private-image-bytes');
+  });
+  await new Promise(resolve => backend.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => backend.close(resolve)));
+  const upstream = `http://127.0.0.1:${backend.address().port}`;
+  const app = await buildApp({ ...config, serverOrigin: upstream, aiOrigin: upstream, webOrigin: upstream,
+    storage: { ...config.storage, endpoint: upstream, region: 'auto' } });
+  t.after(() => app.close());
+  const cookie = await login(app);
+  const response = await app.inject({ url: '/oss/private.jpg', headers: { ...headers, cookie } });
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body, 'private-image-bytes');
+  assert.match(authorization, /\/auto\/s3\/aws4_request/);
+  assert.ok(!JSON.stringify(response.headers).includes('AWS4-HMAC-SHA256'));
+  assert.equal((await app.inject({ url: '/oss/private.jpg', headers })).statusCode, 401);
+});
+
 test('private automation controls keep zero-budget resume blocked and persist a real pause', async t => {
   const directory = await mkdtemp(join(tmpdir(), 'social-controls-'));
   const state = new AutomationState(join(directory, 'state.sqlite'));

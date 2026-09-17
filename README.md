@@ -89,6 +89,40 @@ bucket access implicitly. No service restart or application rollback is needed
 for this bucket-only change. If it is later abandoned, verify it is still empty
 and unused and obtain deletion approval; never delete objects to force removal.
 
+The existing MCP can manage this bucket, but both account and user token
+permission-group endpoints return error 9109. Do not repeat login or use a broad
+administrator key. In Cloudflare R2 > Overview > Manage API Tokens, create an
+account or user token with **Object Read & Write**, limited to
+`luxsabers-social-media` only. Do not choose Admin Read & Write or all buckets.
+The [official R2 authentication guide](https://developers.cloudflare.com/r2/api/tokens/)
+describes the distinction. Record its two S3 keys through the local terminal:
+
+```sh
+python3 scripts/configure-r2.py
+node scripts/verify-r2.mjs --check-config
+```
+
+Both prompts hide input. The helper writes only `.private/r2.json` (0600),
+refuses existing files, and does not upload, transfer credentials or switch the
+application. The offline check validates the target, file mode and key format,
+not actual permission scope or service access.
+
+After free allowance/cost authority is confirmed, an explicitly invoked
+`node scripts/verify-r2.mjs --private-roundtrip` performs at most seven requests
+with SDK retries disabled: one less-than-1-KiB random temporary object, metadata,
+exact download, anonymous HEAD denial, ownership-checked cleanup and absence
+check. It never lists other objects or migrates media. Private intent and result
+files remain under `.runtime/r2-checks`; an interrupted check's intent identifies
+the exact probe for recovery. Unknown ownership prevents deletion. A failed or
+ambiguous write is not automatically repeated. These calls still consume R2
+operations; the tool is not a billing cap. No real R2 object check has run yet.
+
+The local gateway now honors the configured storage signing region. Its R2
+initializer performs only a bucket HEAD, never bucket creation, CORS, policy or
+lifecycle writes. This is preparation, not a completed application migration:
+signed-upload host routing, old-object continuity, server egress and actual
+desktop/mobile upload/download must pass before replacing the deployed config.
+
 ## Deployment
 
 Target: `ubuntu@163.192.46.78`; deployment directory `/srv/luxsabers-social`.
