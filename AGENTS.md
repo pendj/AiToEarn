@@ -32,10 +32,10 @@ Temu, community, AR, or mobile projects as part of this goal.
 Current plan:
 `superpowers/docs/plans/2026-09-17-101328-01-plan-aitoearn-deployment.md`.
 
-Resume checkpoint: remote `/srv/luxsabers-social` gateway/server/AI run release
-`b6321d67fd070f15c2ab90a959682276e5b533a7` with private R2 storage. Automation
-remains on `814be0f`; all eight services are healthy. No unrelated container was
-recreated or restarted.
+Resume checkpoint: remote `/srv/luxsabers-social` gateway/AI run release
+`5dff12c32f2339762d597bc269aff72534c1a08b` with private R2 storage and a restricted
+model connection. Server remains `b6321d6`, automation `814be0f`; all eight
+services are healthy. No unrelated container was recreated or restarted.
 Use private UI port 18880 and signed-image
 port 19000 through the existing SSH tunnel; local 18080 belongs to another
 service. Initial MongoDB and ARM gateway fixes are recorded in the plan. Real
@@ -45,7 +45,7 @@ patch are deployed. Real zero-budget resume denial, idle paused queues with
 concurrency one, and automation-only restart with persistent pause pass.
 Desktop/mobile controls pass at 1440x1000 and 390x844; screenshots stay private.
 Models 003/018 pass source/image hashes and test-checkout checks from the server.
-No model/provider calls. R2 implementation passes 46 Node and 21 Python tests,
+No generation or social-provider calls. R2 implementation passes 46 Node and 21 Python tests,
 including isolated Compose rendering. ARM build and actual app verification pass.
 `scripts/prepare-media.py` now prepares source-hash-matched private JPEGs without
 cropping, metadata or public upload. Both real Model 003/018 outputs and provenance
@@ -104,15 +104,24 @@ catalog fetch had a connection-reset warning, not a health/database failure.
 Remote has 3 channels/2 API access tokens after one
 designated Codex Pro credential import; local retains 614 channels/2 access
 tokens. The import's upstream credential validation passed; no generation call
-was made. The local account was retained, not moved or disabled. AiToEarn has
-not yet activated this connection, and its egress/pause/budget settings remain
-unchanged. A dedicated expiring token (ID 2) is restricted to channel 3 and
+was made. The local account was retained, not moved or disabled. AiToEarn now
+connects through internal gateway port 8083, without new host ports or general
+native-service egress; pause/budget settings remain unchanged. A dedicated
+expiring token (ID 2) is restricted to channel 3 and
 `gpt-5.6-luna`, concurrency one; its protected file is local/remote
 `.private/ccload-model.json`. Real HTTPS metadata from the social host returns
 only Luna; admin access returns 401. The initial Python default User-Agent was
 rejected by Cloudflare; the honest `LuxSabers-Social/1.0` identifier passes.
-No firewall or proxy change was needed. The new internal-only gateway and native
-retry guard are local pending deployment. Generation remains unauthorized:
+No firewall or proxy change was needed. Release `5dff12c` built on ARM and only
+gateway/AI were recreated. Real filtered metadata, native model registration,
+unauthorized native/gateway generation denial, HTTP and desktop/mobile checks
+pass. No upstream generation attempt was recorded. All 53 Node/23 Python tests
+and syntax pass; native SDK shape verification was synthetic, not generation.
+Eight unrelated and six unchanged social containers retain their IDs/start times.
+R2 byte reservations and operation counts are preserved. Rollback files and
+two integrity-checked online SQLite snapshots are under remote
+`.runtime/model-connection`; do not restore old databases to erase attempts.
+Generation remains unauthorized:
 current Pro quota/no purchased credits is not a lasting provider spending cap.
 Do not mark `hardProviderLimitVerified` true from that snapshot or use ccload's
 zero cost limit as a zero-spend cap; zero means unlimited. Exact backups and

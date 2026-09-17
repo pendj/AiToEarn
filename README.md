@@ -338,7 +338,7 @@ restores and MongoDB/Redis startup passed before this upgrade. Application
 rollback has not been executed; it must keep the native queues paused and must
 not restore any grant or enable publishing implicitly.
 
-## Model gateway candidate
+## Model gateway connection
 
 On 2026-09-17, the user separately authorized maintenance of existing ccload
 deployments. Remote runs `ghcr.io/caidaoli/ccload:v4.10.11-beta.6`, pinned to
@@ -397,8 +397,9 @@ to AiToEarn. Read-only HTTPS checks from the social server return only Luna
 was denied by Cloudflare; the explicit `LuxSabers-Social/1.0` identifier passes,
 without firewall, DNS or proxy changes.
 
-The local connection implementation is not deployed yet. It adds only internal
-gateway port 8083, with no host publication or native-service network expansion.
+Connection release `5dff12c32f2339762d597bc269aff72534c1a08b` is deployed to
+gateway/AI only. Server remains `b6321d6`, automation `814be0f`. It adds only
+internal gateway port 8083, with no host publication or native-service network expansion.
 The native AI gets a separate internal key, not the ccload token. Only filtered
 model metadata and bounded text chat are supported. Generation requires the
 existing authority, unpaused state and daily reservation; its upstream attempt
@@ -430,6 +431,39 @@ refuses later configuration edits. Preserve media, authority and the additive
 Never remove an attempt to force a retry. Replace an expiring scoped token only
 through ccload's native management interface, retaining the same restrictions;
 an expired token stops the connection, not the rest of the app.
+
+Real post-deployment checks pass: filtered HTTPS provider metadata, native model
+registration, unauthorized gateway/native chat denial, zero generation attempts,
+private HTTP login and desktop/mobile workspace/controls. All eight services
+are healthy; eight business containers and six unchanged social containers keep
+their IDs/start times. Existing R2 reservations (56,898 bytes plus the recorded
+original) and request ledger remain intact. No model inference or public post
+was made. Local checks pass 53 Node tests, 23 Python tests and syntax.
+
+Exact deployment rollback assets are under remote `.runtime/model-connection`:
+`pre-model-source.tar.gz`, `pre-model.env`, `original-config/`, `activation.json`,
+`baseline.json`, and integrity-checked online `pre-model-automation.sqlite` /
+`pre-model-media.sqlite` snapshots. The first backup precheck used an incorrect
+media filename and stopped before configuration/deployment; the corrected
+`media.sqlite` check passed without overwriting the first valid backup.
+The retained old gateway/AI image references both use full release
+`b6321d67fd070f15c2ab90a959682276e5b533a7`. To revert this connection only, from
+`/srv/luxsabers-social`, first confirm the recorded configuration hashes still
+match, then:
+
+```sh
+python3 scripts/activate-model.py --rollback
+tar -xzf .runtime/model-connection/pre-model-source.tar.gz compose.yaml images.lock.json ai automation gateway server
+cp -p .runtime/model-connection/pre-model.env .env
+docker compose config --quiet
+docker compose up -d --no-deps --no-build --wait --wait-timeout 180 gateway ai
+```
+
+Keep the new protected connection file, manifest and database attempts for
+audit; do not restore the SQLite snapshots for an application-only rollback.
+No rollback was executed. The current image IDs are gateway
+`sha256:6734b0ea17685b6914e5ed8e717257ef79d3834b6b02bf71aff9838ef11eafe2`
+and AI `sha256:2dce43c3c5410333c5f34b384f700c72f8e82e0aab7604328ae7fe68d160bb5a`.
 
 Real generation remains pending. The read-only designated Pro quota reports
 usage available and no purchased credits, but that is not a durable spending

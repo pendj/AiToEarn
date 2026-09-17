@@ -40,8 +40,8 @@ No unrelated business service, data, pricing, policy, or payment state may chang
 
 ## Outcome 2: Isolated, private, recoverable deployment
 
-- Status: private R2 gateway/server/AI verified at release
-  `b6321d67fd070f15c2ab90a959682276e5b533a7`; automation remains on `814be0f`.
+- Status: gateway/AI now run restricted-model release `5dff12c`; server remains
+  private R2 release `b6321d6`, automation `814be0f`.
   Eight services are healthy. Real
   private HTTP, source-matched image storage, desktop/mobile workspace and
   automation controls pass. Only gateway/server/AI changed in the R2 rollout;
@@ -76,7 +76,8 @@ No unrelated business service, data, pricing, policy, or payment state may chang
   A user-designated Codex channel is now imported and credential-validated in
   existing ccload on `147.224.48.149`. A dedicated channel/Luna-only token passes
   real HTTPS metadata/admin-denial checks from the social host. Local guarded
-  native integration is implemented but not deployed; actual generation remains
+  native integration is deployed and passes actual provider metadata, native
+  registration and unauthorized-call denial; actual generation remains
   unverified. This is not an API billing or publishing authorization.
 - Work: reuse authorized product photos and verified current public product
   facts, retain source/configuration provenance and freshness, and use an
@@ -184,8 +185,9 @@ These do not block independent installation and implementation work:
 
 - A designated owned Facebook/Instagram/Pinterest account and its authorization.
 - An applicable model connection and explicit permitted spend (currently zero).
-  Reuse the designated ccload candidate; do not rediscover accounts or treat its
-  successful import as proof of AiToEarn connectivity or unlimited free usage.
+  The designated restricted ccload connection is deployed and verified for
+  metadata/denial only. Do not rediscover accounts or treat connectivity as
+  inference proof or unlimited free usage; zero-spend generation remains gated.
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
 - Platform-readable media and actual provider acceptance after account selection.
@@ -482,3 +484,19 @@ These do not block independent installation and implementation work:
   actual generation are pending. Read-only Pro quota shows availability and
   zero purchased credits, not a permanent zero-spend cap. Authority remains
   false; no platform, public post, paid call or Git push.
+- 2026-09-18: Release `5dff12c32f2339762d597bc269aff72534c1a08b` built on ARM
+  and deployed only to gateway/AI. The pinned native retry patch passes. Exact
+  prior source/environment/configuration and two valid online SQLite snapshots
+  are retained under `.runtime/model-connection`. The initial backup precheck
+  used a wrong media DB filename and stopped before activation; the corrected
+  check passed, retaining the first valid automation snapshot. Actual restricted
+  metadata/native model registration and unauthorized gateway/native chat denial
+  pass, with zero persisted upstream generation attempts. Real private HTTP and
+  desktop/mobile (1440x1000, 390x844) workspace/controls pass, with no broken
+  images, horizontal overflow or frontend errors. All eight services healthy;
+  eight business and six untouched social containers retain IDs/start times.
+  Private fields other than the two approved model fields, R2 reservations and
+  operation ledger are preserved; disk free 22.1 GiB. Native queues stay paused,
+  idle and concurrency one. Exact image/rollback details are in README. No
+  generation, social connection, public post, paid call or Git push; the goal
+  remains incomplete pending real generation and an authorized social platform.
