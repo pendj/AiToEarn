@@ -128,3 +128,13 @@ zero cost limit as a zero-spend cap; zero means unlimited. Exact backups and
 rollback boundaries are in README's model gateway
 section. Reuse the recorded SSH host identity and the key in the user's existing
 `D:\Documents\private\Oracle\147.224.48.149` directory; never print the key.
+
+Next user inputs: designate the first owned social account, and authorize a
+private, read-only quota check on `147.224.48.149` for the designated Codex channel
+only. This is beyond the prior ccload upgrade/import maintenance exception.
+Pinned ccload's `/admin/channels/:id/oauth-usage` is admin-only and its Codex
+summary drops purchased-credit fields; the restricted model token cannot supply
+the needed zero-extra-spend check. Do not give AiToEarn an admin/OAuth credential
+or add host-level SSH access without that authority. Source and live boundary
+checks on 2026-09-18 confirm zero model attempts/dispatches, no designated account,
+zero budget and paused state; no generation/publication is proven.

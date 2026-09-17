@@ -188,6 +188,11 @@ These do not block independent installation and implementation work:
   The designated restricted ccload connection is deployed and verified for
   metadata/denial only. Do not rediscover accounts or treat connectivity as
   inference proof or unlimited free usage; zero-spend generation remains gated.
+  The next least-privilege option needs permission for a private read-only quota
+  check on the ccload host, limited to the designated channel and sanitized
+  allowance/credit status. It must not export account/admin credentials, open a
+  public port, purchase credits or access other accounts. Prior maintenance
+  authorization does not cover that host-level access change.
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
 - Platform-readable media and actual provider acceptance after account selection.
@@ -500,3 +505,16 @@ These do not block independent installation and implementation work:
   idle and concurrency one. Exact image/rollback details are in README. No
   generation, social connection, public post, paid call or Git push; the goal
   remains incomplete pending real generation and an authorized social platform.
+- 2026-09-18: Read-only follow-up checked pinned ccload source: `server.go`
+  registers channel OAuth usage under the admin group; `admin_oauth_usage.go`
+  parses Codex plan/windows/reset credits but not purchased-credit balance.
+  The restricted model token therefore cannot support the proposed pre-call
+  zero-extra-spend check. Official pricing distinguishes included allowance,
+  purchased credits and separate API billing. No additional credential or
+  generation request was made. Live social state confirms model/publishing
+  unauthorized, budget zero, no designated accounts, zero generation attempts
+  and zero dispatches, with the worker paused. Further model work needs the
+  narrowly scoped ccload-host permission above; platform work needs the first
+  owned account link and its official authorization. No new deployment, push,
+  public media, social connection, paid use or publication. Goal remains active
+  and incomplete; do not repeat the completed upgrades or metadata checks.
