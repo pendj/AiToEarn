@@ -145,3 +145,14 @@ These do not block independent installation and implementation work:
   image uploads now pass through a second loopback-only gateway listener. Initial
   real HTTP verification failed because the gateway was not yet listening; this
   is not a passed check. No model call, social connection, public post or fee.
+- 2026-09-17: Release `efeb3a5` gateway builds and loads real ARM64 session
+  encryption. Real HTTP login/operator identity, private HTML, forbidden
+  configuration/model/publishing calls, logout and anonymous denial pass.
+  A source-hash-matched authorized Model 003 photo passes real signed upload,
+  application confirmation and byte-identical private download; not a social
+  post. Local port 18080 is occupied by an unrelated service, so private access
+  moves to 18880 with a guarded three-file origin migration and retained backup.
+  Browser login exposes `Origin: null` caused by the no-referrer policy; the
+  same-origin referrer fix preserves CSRF checking and passes regression tests.
+  Browser rerun is pending. Eight original container IDs remain unchanged;
+  9,423 MiB RAM and 23 GiB disk are available after deployment.

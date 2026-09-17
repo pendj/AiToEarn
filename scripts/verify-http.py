@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """Exercise the real private app, without printing passwords, cookies or IDs."""
 
+import argparse
+import hashlib
 import http.cookiejar
 import json
 from pathlib import Path
 import urllib.error
 import urllib.request
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--asset', type=Path)
+args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
-base = "http://127.0.0.1:18080"
+base = "http://127.0.0.1:18880"
 cookiejar = http.cookiejar.CookieJar()
 client = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookiejar))
 config = json.loads((root / ".private/gateway.json").read_text())
@@ -45,6 +50,26 @@ status, html, _ = request('/en')
 assert status == 200 and b'<html' in html.lower(), 'Real frontend failed'
 for secret in [config['jwtSecret'], config['sessionKey'], password]:
     assert secret.encode() not in html, 'Secret present in frontend HTML'
+if args.asset:
+    asset = args.asset.resolve()
+    assert asset.is_relative_to(root / '.runtime/assets'), 'Use only project-local staged assets'
+    raw = asset.read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == '76200aea9476cd6bf08abaf425904115819737d88138becee2483cd53aec8d28', 'Unexpected product photo'
+    status, body, _ = request('/api/assets/uploadSign', {'filename': asset.name, 'type': 'userMedia', 'size': len(raw)})
+    assert status == 200 and json.loads(body).get('code') == 0, 'Real upload signing failed'
+    signed = json.loads(body)['data']
+    upload = urllib.request.Request(signed['uploadUrl'], data=raw, method='PUT', headers={'Origin': base, 'Content-Type': 'image/webp'})
+    try:
+        with urllib.request.urlopen(upload, timeout=30) as response:
+            assert response.status == 200, 'Real signed storage upload failed'
+    except urllib.error.HTTPError as error:
+        raise SystemExit(f'Signed storage upload returned HTTP {error.code}; provider payload not printed') from None
+    status, body, _ = request('/api/assets/' + signed['id'] + '/confirm', {})
+    assert status == 200 and json.loads(body).get('code') == 0, 'Real upload confirmation failed'
+    status, downloaded, _ = request('/oss/' + signed['path'].lstrip('/'))
+    assert status == 200 and downloaded == raw, 'Stored product photo must match source bytes'
+    assert request('/oss/' + signed['path'].lstrip('/'), opener=anonymous)[0] == 401, 'Product photo must stay private'
+    print('PASS: source-matched product photo signed upload, application confirmation, exact private download and anonymous denial.')
 assert request('/session/logout', {})[0] == 200, 'Logout failed'
 assert request('/api/user/mine')[0] == 401, 'Logged-out API must fail'
 print('PASS: real private login, correct upstream operator, frontend HTML, anonymous denial, credential boundaries, paused model/publishing, logout.')

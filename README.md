@@ -9,7 +9,7 @@ publishing authorization. It is not a completed social publishing service yet.
 - Upstream source and Linux ARM64 images are pinned in `images.lock.json`.
 - MongoDB, Redis, app services, and storage have their own internal Docker
   network and volumes. No application egress is enabled initially.
-- Only `127.0.0.1:18080` (authenticated workspace) and `127.0.0.1:19000`
+- Only `127.0.0.1:18880` (authenticated workspace) and `127.0.0.1:19000`
   (short-lived, signed image uploads via the gateway) are bound on the host.
   The object store itself has no host port. Uploads are limited to JPEG, PNG,
   or WebP, at most 50 MiB, and the signed URL is verified by the real S3 service.
@@ -71,10 +71,10 @@ The native encryption module is loaded during the image build as a smoke check.
 Keep this forwarding session open on the local machine:
 
 ```sh
-ssh -i /root/.ssh/163.192.46.78.key -o IdentitiesOnly=yes -o ForwardAgent=no -o ExitOnForwardFailure=yes -N -L 127.0.0.1:18080:127.0.0.1:18080 -L 127.0.0.1:19000:127.0.0.1:19000 ubuntu@163.192.46.78
+ssh -i /root/.ssh/163.192.46.78.key -o IdentitiesOnly=yes -o ForwardAgent=no -o ExitOnForwardFailure=yes -N -L 127.0.0.1:18880:127.0.0.1:18880 -L 127.0.0.1:19000:127.0.0.1:19000 ubuntu@163.192.46.78
 ```
 
-Then open `http://127.0.0.1:18080/session/login`. Session status and sign-out are
+Then open `http://127.0.0.1:18880/session/login`. Session status and sign-out are
 at `/session`. HTTP cookies are allowed only for the private SSH-forwarded
 loopback setup. Any later HTTPS exposure must enable Secure cookies, update
 trusted origins, and retain private management access controls.

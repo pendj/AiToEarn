@@ -27,3 +27,10 @@ Temu, community, AR, or mobile projects as part of this goal.
 
 Current plan:
 `superpowers/docs/plans/2026-09-17-101328-01-plan-aitoearn-deployment.md`.
+
+Resume checkpoint: remote `/srv/luxsabers-social` has isolated healthy stores,
+AI/server/web and private gateway. Use private UI port 18880 and signed-image
+port 19000 through the existing SSH tunnel; local 18080 belongs to another
+service. Initial MongoDB and ARM gateway fixes are recorded in the plan. Real
+HTTP login and source-matched private image upload pass. Browser and automation
+verification remain open; model budget is zero and no social account is connected.

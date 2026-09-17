@@ -50,7 +50,7 @@ def create_config(root, check_resources=True):
         "operatorId": secrets.token_hex(12),
         "sessionEpoch": secrets.token_hex(16),
     }
-    origins = ["http://127.0.0.1:18080", "http://localhost:18080"]
+    origins = ["http://127.0.0.1:18880", "http://localhost:18880"]
     mongo_uri = f"mongodb://aitoearn:{values['mongoAppPassword']}@mongodb:27017/?authSource=admin&replicaSet=rs0"
     redis = {"host": "redis", "port": 6379, "username": "default", "password": values["redisPassword"]}
     assets = {

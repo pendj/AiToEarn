@@ -37,7 +37,9 @@ test('anonymous access cannot reach app, API, or assets; hostile Host rejected',
   }
   for (const url of ['/api/user/mine', '/oss/test.jpg']) assert.equal((await app.inject({ url, headers })).statusCode, 401);
   assert.equal((await app.inject({ url: '/', headers: { host: 'attacker.example' } })).statusCode, 400);
-  const html = (await app.inject({ url: '/session/login', headers })).body;
+  const loginResponse = await app.inject({ url: '/session/login', headers });
+  assert.equal(loginResponse.headers['referrer-policy'], 'same-origin');
+  const html = loginResponse.body;
   for (const secret of [config.jwtSecret, config.sessionKey, config.passwordHash, password]) assert.ok(!html.includes(secret));
 });
 

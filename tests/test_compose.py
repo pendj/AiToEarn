@@ -16,7 +16,7 @@ class PinTests(unittest.TestCase):
         self.assertNotIn("docker.sock", compose)
         self.assertIn("internal: {internal: true}", compose)
         self.assertEqual(compose.count("ports:"), 1)
-        self.assertIn("127.0.0.1:18080:8080", compose)
+        self.assertIn("127.0.0.1:18880:8080", compose)
         self.assertIn("127.0.0.1:19000:8081", compose)
         self.assertIn("command: [node, apps/aitoearn-ai/src/main.js, -c, config.yaml]", compose)
         self.assertIn("command: [node, apps/aitoearn-server/src/main.js, -c, config.yaml]", compose)

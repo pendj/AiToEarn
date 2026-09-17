@@ -51,7 +51,7 @@ export async function buildApp(config, { enableProxy = true } = {}) {
     if (!path || !hosts.has(request.headers.host)) return reply.code(400).send({ error: 'Invalid request' });
     request.safePath = path;
     reply.header('X-Content-Type-Options', 'nosniff');
-    reply.header('Referrer-Policy', 'no-referrer');
+    reply.header('Referrer-Policy', 'same-origin');
     reply.header('X-Frame-Options', 'DENY');
     reply.header('Cache-Control', 'no-store');
     if (path.startsWith('/session')) reply.header('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
