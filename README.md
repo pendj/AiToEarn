@@ -4,6 +4,12 @@ Private, single-operator AiToEarn deployment for the existing ARM server. The
 initial release has no model credentials, no connected social accounts, and no
 publishing authorization. It is not a completed social publishing service yet.
 
+Verified application release: `814be0ff08f78717e48ec771ff6c4dd38f4ddcde`
+(2026-09-17). Eight services are healthy; real private HTTP and desktop/mobile
+controls pass. The worker stays paused across a service restart with no model
+reservations or dispatches. This is not evidence of a real generated or published
+post. The existing unrelated business containers were not recreated or restarted.
+
 ## Scope and design
 
 - Upstream source and Linux ARM64 images are pinned in `images.lock.json`.
@@ -144,7 +150,8 @@ python3 scripts/verify-http.py
   schemas. A later data migration requires a verified backup first.
 - Backup: `python3 scripts/project-backup.py snapshot` briefly stops only this
   project's running services, archives its four cold volumes and private
-  configuration, then starts the same services. Run from the exact deployment
+  configuration, including `.runtime/automation` when present, then starts the
+  same services. Run from the exact deployment
   directory. Backups are private under `.runtime/backups/<snapshot-id>/` and are
   not uploaded to OBS/R2 or automatically deleted.
 - Verify recovery: `python3 scripts/project-backup.py verify --snapshot <snapshot-id>`
@@ -161,6 +168,13 @@ python3 scripts/verify-http.py
   automation container and all data volumes intact. Do not restore the complete
   secret directory or roll live databases back just to revert application code.
 
+The retained pre-upgrade snapshot is `20260917T121131Z-4433cc9`. Its matching
+gateway image `luxsabers-social-gateway:4433cc94318daa07c83988ebcb8f0e5c1e923b81`
+and pinned upstream server image remain on the host. The snapshot's four volume
+restores and MongoDB/Redis startup passed before this upgrade. Application
+rollback has not been executed; it must keep the native queues paused and must
+not restore any grant or enable publishing implicitly.
+
 ## Cost and account boundaries
 
 MIT software licensing is free. The existing server does not remove model,
@@ -169,10 +183,12 @@ Do not use another application's key or subscribe to a paid service implicitly.
 
 Huawei OBS is disabled: its supplied key remains only in ignored local private
 configuration; the user reports the traffic package expired. No OBS requests or
-migration occurred. R2 Standard is a proposed alternative, not yet enabled or
-authorized for billable use. Cloudflare MCP can read the existing domain with
-the current login; subscription metadata was denied, so R2 subscription/scope
-are unconfirmed. Do not request a full re-login based on that denial alone.
+migration occurred. The user reports R2 is created; the existing Cloudflare MCP
+login now successfully lists buckets, with an empty list for the connected
+account's default jurisdiction. The target bucket name/page is still needed.
+No R2 bucket/object write, runtime credential setup or billable-use authorization
+has occurred. Billing metadata is permission-denied, which is not an expired
+login. Do not request a full re-login based on that denial alone.
 
 The complete execution state and required real-service evidence are maintained
 in `superpowers/docs/plans/2026-09-17-101328-01-plan-aitoearn-deployment.md`.

@@ -28,20 +28,24 @@ Temu, community, AR, or mobile projects as part of this goal.
 Current plan:
 `superpowers/docs/plans/2026-09-17-101328-01-plan-aitoearn-deployment.md`.
 
-Resume checkpoint: remote `/srv/luxsabers-social` has isolated healthy stores,
-AI/server/web and private gateway. Use private UI port 18880 and signed-image
+Resume checkpoint: remote `/srv/luxsabers-social` runs application release
+`814be0ff08f78717e48ec771ff6c4dd38f4ddcde` with eight healthy isolated services.
+Use private UI port 18880 and signed-image
 port 19000 through the existing SSH tunnel; local 18080 belongs to another
 service. Initial MongoDB and ARM gateway fixes are recorded in the plan. Real
 HTTP login, source-matched private image upload, and real desktop/mobile workspace
-checks pass. Automation changes after `4433cc9` are local only until explicitly
-recorded as deployed: SQLite daily intent, cost reservations, pause controls,
-source checks, and a hash-guarded native retry patch. No model/provider calls.
-Current local tests: 27 Node and ten Python tests pass; new remote worker and
-private controls validation are pending. Pre-upgrade cold snapshot
+checks pass. The SQLite companion, pause controls and hash-guarded native retry
+patch are deployed. Real zero-budget resume denial, idle paused queues with
+concurrency one, and automation-only restart with persistent pause pass.
+Desktop/mobile controls pass at 1440x1000 and 390x844; screenshots stay private.
+Models 003/018 pass source/image hashes and test-checkout checks from the server.
+No model/provider calls. Local tests: 27 Node and ten Python tests pass.
+Pre-upgrade cold snapshot
 `20260917T121131Z-4433cc9` passed four isolated volume byte comparisons and
 restored MongoDB/Redis startup. Restore-test copies were removed; backup retained.
 Pause/resume races and same-flow restart recovery have focused regression tests;
-never run a second worker beside the Compose service.
+real scheduled-post recovery is not yet verified. Never run a second worker
+beside the Compose service. Eight unrelated business container IDs are unchanged.
 Model budget remains zero and no social account is connected.
 
 OBS addition: user owns bucket `pendjun`, endpoint
@@ -51,7 +55,9 @@ package. Proposed isolated prefix is `luxsabers-social/`; do not read/list/chang
 other bucket contents. A key is stored disabled in ignored local `.private/obs.json`
 (0600); never print it. User reports the traffic package expired. No OBS request,
 credential transfer or integration has occurred. Do not assume a storage package
-covers requests/egress or mutate bucket-wide policies. R2 is only a proposed
-alternative: subscription, storage authority and runtime credentials are missing.
-Existing Cloudflare MCP login successfully reads `luxsabers.com`; subscription
-metadata returns a permission error. Do not repeat login or claim R2 is active.
+covers requests/egress or mutate bucket-wide policies. User reports R2 is now
+created. Existing Cloudflare MCP successfully lists R2 buckets, but the connected
+account's default-jurisdiction list is empty. Await the bucket name/page to resolve
+the target; do not create another bucket or assume billable-use authority.
+Subscription metadata remains permission-denied; runtime storage credentials
+and actual object access are unverified. No R2 write occurred. Do not repeat login.

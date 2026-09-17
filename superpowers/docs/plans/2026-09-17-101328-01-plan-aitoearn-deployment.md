@@ -40,10 +40,12 @@ No unrelated business service, data, pricing, policy, or payment state may chang
 
 ## Outcome 2: Isolated, private, recoverable deployment
 
-- Status: in progress; seven isolated services pass real health checks at
-  release `4433cc9`. Real private HTTP, source-matched image storage and
-  desktop/mobile workspace checks pass. The new automation companion, controls,
-  derived server and cold backup/restore tools are local-only pending deployment.
+- Status: private deployment verified at release
+  `814be0ff08f78717e48ec771ff6c4dd38f4ddcde`; eight services are healthy. Real
+  private HTTP, source-matched image storage, desktop/mobile workspace and
+  automation controls pass. Only server/gateway/automation were updated; the
+  other social services and eight unrelated business container IDs are unchanged.
+  Cold backup/isolated restore passed. Cloud media storage is still pending.
 - Work: dedicated Compose project, internal stores, independent volumes, pinned
   compatible ARM images, unique secrets, no auto-admin login, private management
   through SSH forwarding, resource caps, log rotation, and disk/retention limits.
@@ -90,7 +92,10 @@ No unrelated business service, data, pricing, policy, or payment state may chang
 
 ## Outcome 5: Persistent daily automation with controlled publishing
 
-- Status: in progress; native flow/task, chat and source contracts inspected.
+- Status: companion and native retry guard deployed; real pause controls,
+  zero-budget resume denial, native queue limits and automation-only restart
+  preservation pass. Real authorized generation and scheduled publication,
+  including recovery of an actual provider flow, remain pending.
 - Work: default one theme per day, at most one post per enabled account per day,
   `America/New_York` timezone, concurrency one; persistent draft/schedule states,
   provenance, deduplication, bounded retries, failures, expiry, and pause controls.
@@ -155,6 +160,8 @@ These do not block independent installation and implementation work:
 - An applicable model connection and explicit permitted spend (currently zero).
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
+- The R2 bucket name/page, applicable runtime access and storage-cost authority;
+  approved platform-readable JPEG derivatives are not yet published.
 
 ## OBS storage addition (2026-09-17)
 
@@ -187,10 +194,14 @@ These do not block independent installation and implementation work:
 - R2 Standard was proposed as an alternative: verified current official pricing
   includes 10 GB-month storage, 1M Class A and 10M Class B monthly operations,
   with no R2 egress charge. Allowances are account-wide, not a spending cap.
-  https://developers.cloudflare.com/r2/pricing/ . No R2 subscription, bucket or
-  object was created/read. Existing Cloudflare MCP can read the commerce zone;
-  billing-subscription access was denied. Do not confuse that with an expired
-  login or claim actual R2 access has passed.
+  https://developers.cloudflare.com/r2/pricing/ . The user subsequently reports
+  R2 is created. `GET /accounts/{account_id}/r2/buckets` now returns HTTP 200 with
+  an empty bucket list for the connected account's default jurisdiction. Await
+  the bucket name/page to resolve whether this is R2 activation, a different
+  account or jurisdiction. No bucket/object write or runtime storage setup has
+  occurred; bucket creation and billable use are not inferred from this check.
+  Billing-subscription metadata remains permission-denied. Existing login is
+  valid; do not repeat authentication or claim object access is verified.
 
 ## Work log
 
@@ -262,3 +273,21 @@ These do not block independent installation and implementation work:
   original services and the 1.7 MiB snapshot remain. No off-server backup or
   restored public-media/model/provider acceptance is claimed. Local checks now
   comprise 27 Node tests and ten Python tests.
+- 2026-09-17: Built and deployed exact source `814be0f` on ARM64. Gateway and
+  automation image ID is
+  `sha256:a861ffc1f56850ec8ce9d5e6a9456a7a1915343b4baa4f89eed2e435d1dd598e`;
+  derived server image ID is
+  `sha256:90d6323ee4978e0f52ac4232e5e7004c38cc1945bdd85170e065e39cfa60e885`.
+  Runtime verification confirms the native resubmission branch is disabled,
+  three idle paused queues have concurrency one, and there are no model cost
+  reservations or dispatches. Real HTTP login/status/logout and zero-budget
+  resume rejection pass. Desktop 1440x1000 and mobile 390x844 private controls
+  pass without horizontal overflow or runtime errors; screenshots remain local.
+  Restarting only automation preserves `operator_paused`, zero activity and a
+  live heartbeat. Both Model 003/018 public catalog/image hashes and test-checkout
+  checks pass from the server; no model/provider calls. Pre-upgrade exact images
+  and configuration remain available; no application rollback was executed.
+  Actual container limits and log rotation match Compose, with only two loopback
+  gateway ports exposed. Eight unrelated container IDs are unchanged; 23 GiB disk
+  and 9,222 MiB RAM remain available. R2 metadata read is now allowed, but its
+  current bucket list is empty; there are still no cloud-storage writes.
