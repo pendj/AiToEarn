@@ -10,7 +10,9 @@ publishing authorization. It is not a completed social publishing service yet.
 - MongoDB, Redis, app services, and storage have their own internal Docker
   network and volumes. No application egress is enabled initially.
 - Only `127.0.0.1:18080` (authenticated workspace) and `127.0.0.1:19000`
-  (authenticated S3 API for signed uploads) are bound on the host.
+  (short-lived, signed image uploads via the gateway) are bound on the host.
+  The object store itself has no host port. Uploads are limited to JPEG, PNG,
+  or WebP, at most 50 MiB, and the signed URL is verified by the real S3 service.
 - The upstream automatic administrator token is disabled. A small private
   gateway authenticates the operator, uses an HttpOnly encrypted session, and
   signs a five-minute upstream JWT only on the server. The frontend's local
@@ -39,8 +41,8 @@ Do not print rendered Compose configuration after secret provisioning; use
 
 ## Deployment
 
-Target: `ubuntu@163.192.46.78`; deployment directory will be recorded in the plan
-after the remote preflight. All following commands run inside that directory.
+Target: `ubuntu@163.192.46.78`; deployment directory `/srv/luxsabers-social`.
+All following commands run inside that directory.
 Transfer only committed deployment files, never local `node_modules`, `.private`,
 or unrelated workspace files. Pin `<verified-commit>` to a full local Git SHA.
 
@@ -59,6 +61,10 @@ It refuses partial/conflicting state and does not rotate existing credentials.
 The username is `luxsabers`; the generated password is in the protected
 `.private/operator-password.txt` file. Never paste credentials into chat or Git.
 Do not run host-wide prune/cleanup, `down -v`, or remove data volumes.
+The apps run directly as the deployment UID, without the upstream command that
+appends public resolvers to `/etc/resolv.conf`. The gateway uses a pinned glibc
+ARM64 base because its session-encryption library has no musl ARM64 prebuild.
+The native encryption module is loaded during the image build as a smoke check.
 
 ## Private access
 

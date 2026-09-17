@@ -2,9 +2,11 @@
 """Create project-local private configuration without disclosing secret values."""
 
 import argparse
+import base64
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import secrets
 import shutil
@@ -96,7 +98,7 @@ def create_config(root, check_resources=True):
     for name, config in [("server.yaml", server), ("ai.yaml", ai), ("gateway.json", gateway), ("mongodb.json", mongo_init)]:
         private_write(private / name, json.dumps(config, indent=2) + "\n")
     private_write(private / "mongo-root-password", values["mongoRootPassword"])
-    private_write(private / "replica.key", secrets.token_urlsafe(512))
+    private_write(private / "replica.key", base64.b64encode(secrets.token_bytes(512)).decode("ascii"))
     private_write(private / "operator-password.txt", password + "\n")
     private_write(private / "redis.conf", "bind 0.0.0.0\nprotected-mode yes\nappendonly yes\nappendfsync everysec\nmaxmemory 128mb\nmaxmemory-policy noeviction\nrequirepass " + values["redisPassword"] + "\n")
     private_write(private / "redis.env", "REDISCLI_AUTH=" + values["redisPassword"] + "\n")
@@ -106,8 +108,26 @@ def create_config(root, check_resources=True):
     print("Created private configuration; no credentials printed; model calls and publishing disabled.")
 
 
+def repair_initial_key(root):
+    path = root.resolve() / ".private/replica.key"
+    existing = path.read_text()
+    if re.fullmatch(r"[A-Za-z0-9+/=]{6,1024}", existing):
+        print("Replica key already has valid base64 format; no rotation performed")
+        return
+    if not re.fullmatch(r"[A-Za-z0-9_-]{6,1024}", existing):
+        raise SystemExit("Unexpected key format; refusing automatic repair")
+    replacement = path.with_name("replica.key.replacement")
+    private_write(replacement, base64.b64encode(secrets.token_bytes(512)).decode("ascii"))
+    replacement.replace(path)
+    print("Replaced invalid initial replica key; value not printed. Install into the stopped initial MongoDB volume with the guarded repair script.")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--repair-initial-key", action="store_true")
     args = parser.parse_args()
-    create_config(args.root)
+    if args.repair_initial_key:
+        repair_initial_key(args.root)
+    else:
+        create_config(args.root)

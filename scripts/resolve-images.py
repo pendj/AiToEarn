@@ -12,7 +12,7 @@ IMAGES = {
     "MONGO_IMAGE": ("library/mongo", "8.0"),
     "REDIS_IMAGE": ("library/redis", "7.4-alpine"),
     "STORAGE_IMAGE": ("rustfs/rustfs", "latest"),
-    "NODE_IMAGE": ("library/node", "22-alpine"),
+    "NODE_IMAGE": ("library/node", "22-bookworm-slim"),
 }
 
 for variable, (repository, tag) in IMAGES.items():

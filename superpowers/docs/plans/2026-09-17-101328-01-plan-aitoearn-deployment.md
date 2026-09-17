@@ -40,9 +40,11 @@ No unrelated business service, data, pricing, policy, or payment state may chang
 
 ## Outcome 2: Isolated, private, recoverable deployment
 
-- Status: in progress; local deployment and authentication adapter implemented,
-  not yet deployed. Six authentication/proxy tests and two provisioning tests
-  pass. Real app integration and browser checks remain outstanding.
+- Status: in progress; isolated services deployed under `/srv/luxsabers-social`.
+  MongoDB, Redis, storage, AI, server and web pass real health checks. Private
+  gateway ARM compatibility and signed-upload proxy changes pass nine Node tests
+  and four Python tests; the updated gateway still needs remote verification.
+  Real authenticated app integration and browser checks remain outstanding.
 - Work: dedicated Compose project, internal stores, independent volumes, pinned
   compatible ARM images, unique secrets, no auto-admin login, private management
   through SSH forwarding, resource caps, log rotation, and disk/retention limits.
@@ -129,3 +131,17 @@ These do not block independent installation and implementation work:
   session gateway and source-matched initialization. Six local authentication
   and proxy tests plus two provisioning tests pass; npm audit reported zero
   known vulnerabilities. No model/provider calls or remote changes yet.
+- 2026-09-17: Deployed initial source `b7e4dbb` independently. Fixed MongoDB's
+  entrypoint password permissions, invalid initial replica-key encoding, and
+  mongosh's thrown NotYetInitialized response. Only the invalid never-activated
+  initialization key was rotated; all data volumes and other credentials were
+  preserved. Diagnostics now redact replica keys, including the original
+  invalid-key error. The initial diagnostic exposed that unusable key; its value
+  is not retained in this record. New services use no existing business database.
+- 2026-09-17: AI/server/web became healthy after bypassing the upstream
+  root-only resolver mutation. Gateway startup found a missing ARM64-musl sodium
+  binary; selected a pinned ARM64 glibc base and added a native-load build check.
+  Docker's internal network prevented direct storage port publication, so signed
+  image uploads now pass through a second loopback-only gateway listener. Initial
+  real HTTP verification failed because the gateway was not yet listening; this
+  is not a passed check. No model call, social connection, public post or fee.

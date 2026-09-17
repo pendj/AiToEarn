@@ -1,4 +1,5 @@
 import importlib.util
+import base64
 import json
 import os
 from pathlib import Path
@@ -21,6 +22,7 @@ class ProvisionTests(unittest.TestCase):
             for path in private.iterdir():
                 self.assertEqual(path.stat().st_mode & 0o777, 0o600)
             values = json.loads(before["secrets.json"])
+            self.assertEqual(len(base64.b64decode(before["replica.key"], validate=True)), 512)
             secrets = [values[k] for k in values if k.endswith(("Password", "Secret", "Token", "Key"))]
             self.assertEqual(len(secrets), len(set(secrets)))
             PROVISION.create_config(root, check_resources=False)
@@ -42,6 +44,20 @@ class ProvisionTests(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 PROVISION.create_config(root, check_resources=False)
             self.assertEqual((root / ".private/user-file").read_text(), "keep")
+
+    def test_initial_replica_repair_rotates_only_invalid_key(self):
+        with tempfile.TemporaryDirectory(prefix="social-test-") as directory:
+            root = Path(directory)
+            private = root / ".private"
+            private.mkdir(mode=0o700)
+            path = private / "replica.key"
+            path.write_text("invalid_url-safe_value")
+            PROVISION.repair_initial_key(root)
+            key = path.read_bytes()
+            self.assertEqual(len(base64.b64decode(key, validate=True)), 512)
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            PROVISION.repair_initial_key(root)
+            self.assertEqual(key, path.read_bytes())
 
 
 if __name__ == "__main__":

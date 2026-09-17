@@ -10,7 +10,7 @@
     "MONGO_IMAGE": "mongo@sha256:9535c3627cc8c14b2768c7fd825dcd52c3247ba39f96d1cc5c129948d5fd5028",
     "REDIS_IMAGE": "redis@sha256:f8d15882ba108587477ce13c00ab0551933a84138427b7cc9abadfbe45ffd973",
     "STORAGE_IMAGE": "rustfs/rustfs@sha256:42edb61d588775f9431ff436216d14392d2234d4eb2ed68321569fbf7245b36b",
-    "NODE_IMAGE": "node@sha256:1ef15d33d74602021f35ec64a4e72f4a21e2cfa68ebecd125fbe0c44af8f604a"
+    "NODE_IMAGE": "node@sha256:8d342e46d3b2883df69f797cb60fc71d8a0b65de65ddfbf4bf63fdc02049615f"
   },
   "sourceTags": {
     "WEB_IMAGE": "20260626-8bbf520",
@@ -19,6 +19,6 @@
     "MONGO_IMAGE": "8.0",
     "REDIS_IMAGE": "7.4-alpine",
     "STORAGE_IMAGE": "latest (resolved once; digest is authoritative)",
-    "NODE_IMAGE": "22-alpine"
+    "NODE_IMAGE": "22-bookworm-slim"
   }
 }

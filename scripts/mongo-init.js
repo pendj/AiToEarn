@@ -3,14 +3,20 @@ const config = JSON.parse(fs.readFileSync('/run/private/mongodb.json', 'utf8'));
 let admin;
 for (let attempt = 0; attempt < 40; attempt++) {
   try {
-    admin = new Mongo('mongodb://mongodb:27017/?directConnection=true').getDB('admin');
+    admin = new Mongo('mongodb://mongodb:27017/?directConnection=true&connectTimeoutMS=2000&serverSelectionTimeoutMS=2000').getDB('admin');
     if (admin.auth('admin', config.mongoRootPassword).ok === 1) break;
   } catch {}
   admin = null;
   sleep(1500);
 }
 if (!admin) throw new Error('MongoDB did not become available');
-const status = admin.runCommand({ replSetGetStatus: 1 });
+let status;
+try {
+  status = admin.runCommand({ replSetGetStatus: 1 });
+} catch (error) {
+  if (error.code !== 94) throw error;
+  status = { ok: 0, code: 94 };
+}
 if (status.code === 94) {
   const result = admin.runCommand({ replSetInitiate: { _id: 'rs0', members: [{ _id: 0, host: 'mongodb:27017' }] } });
   if (!result.ok) throw new Error('Replica set initialization failed');
