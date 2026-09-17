@@ -40,11 +40,10 @@ No unrelated business service, data, pricing, policy, or payment state may chang
 
 ## Outcome 2: Isolated, private, recoverable deployment
 
-- Status: in progress; isolated services deployed under `/srv/luxsabers-social`.
-  MongoDB, Redis, storage, AI, server and web pass real health checks. Private
-  gateway ARM compatibility and signed-upload proxy changes pass nine Node tests
-  and four Python tests; the updated gateway still needs remote verification.
-  Real authenticated app integration and browser checks remain outstanding.
+- Status: in progress; seven isolated services pass real health checks at
+  release `4433cc9`. Real private HTTP, source-matched image storage and
+  desktop/mobile workspace checks pass. The new automation companion, controls,
+  derived server and cold backup/restore tools are local-only pending deployment.
 - Work: dedicated Compose project, internal stores, independent volumes, pinned
   compatible ARM images, unique secrets, no auto-admin login, private management
   through SSH forwarding, resource caps, log rotation, and disk/retention limits.
@@ -91,7 +90,7 @@ No unrelated business service, data, pricing, policy, or payment state may chang
 
 ## Outcome 5: Persistent daily automation with controlled publishing
 
-- Status: pending.
+- Status: in progress; native flow/task, chat and source contracts inspected.
 - Work: default one theme per day, at most one post per enabled account per day,
   `America/New_York` timezone, concurrency one; persistent draft/schedule states,
   provenance, deduplication, bounded retries, failures, expiry, and pause controls.
@@ -102,6 +101,41 @@ No unrelated business service, data, pricing, policy, or payment state may chang
   limits without requiring daily manual approval.
 - Verify: idempotency, crash/restart recovery, paused state, expired facts, failure
   limits, and real scheduled dispatch/result lookup after authorization.
+- Implementation decision: add a small single-worker companion, not a new
+  social platform. Keep daily intent, provenance, content fingerprints, cost
+  reservations and flow reconciliation in a private SQLite volume. Reuse
+  AiToEarn chat and publishing APIs; constrain its shared publishing queues to
+  one active job. Only release a flow at dispatch time after current source,
+  permissions and pause checks. Persist the flow ID before submission; unknown
+  outcomes are read back rather than submitted again. Private session UI exposes
+  status and pause, never credentials or authorization editing.
+- Initial schedule proposal: 13:00 America/New_York, one theme and at most one
+  post/account/day, at most two designated accounts. No actual publishing is
+  enabled by this proposal. Model output selects source-backed English elements;
+  no unsupported price, stock, delivery, warranty, review or purchase claims.
+- Source freshness: verify the exact current public catalog and selected image
+  hashes before generation/dispatch; changed or unreachable source pauses the
+  affected content. No commerce API writes or customer data reads are needed.
+
+## Platform findings (2026-09-17)
+
+- The pinned source includes direct Facebook, Instagram and Pinterest providers;
+  the optional hosted relay is not mandatory for those direct integrations.
+  Credentials/app review are still required; no account is currently connected.
+- Facebook Pages: own/managed Page, Facebook Login and Page content permissions.
+  Personal profiles are not a Page-publishing destination. Official guide:
+  https://developers.facebook.com/docs/pages-api/posts/
+- Instagram: professional account, Instagram Login business basic and content
+  publish permissions; JPEG media must be reachable by Meta at publication time.
+  This deployment's private WebP storage is not yet a public publishing asset.
+  https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/content-publishing/
+- Pinterest: Trial-created Pins/Boards are sandbox entities visible only to their
+  creator, so Trial cannot prove this goal's public-post acceptance. Standard
+  access and an owned target board must be confirmed for real publication.
+  https://developers.pinterest.com/docs/key-concepts/access-tiers/
+- Actual provider/app approval, relay fees if selected, model price and limits
+  must be confirmed for the designated account. Software self-hosting alone is
+  not evidence of free or unattended access.
 
 ## Outcome 6: Verified delivery and local commits
 
@@ -121,6 +155,42 @@ These do not block independent installation and implementation work:
 - An applicable model connection and explicit permitted spend (currently zero).
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
+
+## OBS storage addition (2026-09-17)
+
+- User requested using an existing Huawei OBS package to reduce local media
+  storage: standard multi-AZ, 40GB monthly package. Endpoint supplied by user:
+  `obs.cn-south-4.myhuaweicloud.com`; existing bucket `pendjun`, host
+  `pendjun.obs.cn-south-4.myhuaweicloud.com`.
+- Proposed layout: originals, videos and media derivatives under a dedicated
+  `luxsabers-social/` prefix; local database/schedule state and bounded temporary
+  cache remain on the server. Do not modify the commerce site's media, list other
+  bucket objects, or grant anonymous bucket-wide read access.
+- User supplied a credential; it is held disabled in ignored local private
+  configuration (0600), not transferred remotely. Scope is unverified, additional
+  budget remains zero, and the user reports the traffic package has expired.
+  No OBS API call, migration, lifecycle change or new billable resource occurred.
+- Huawei separates storage, request and public-egress billing. The existing
+  server and social providers are not same-region Huawei ECS; their downloads
+  may incur public egress. A 40GB storage package is not a bandwidth allowance or
+  an automatic spending cap. Confirm matching region/multi-AZ coverage, request
+  costs and permitted egress before an authenticated storage test.
+- The pinned AiToEarn uses the AWS S3 SDK for uploads, signed URLs, metadata and
+  multipart operations. OBS compatibility, signing, prefix isolation, and
+  overseas platform retrieval still require an authorized real-service check;
+  do not claim that changing the endpoint alone completes integration.
+- Official references: resource package balance
+  https://support.huaweicloud.com/price-obs/obs_42_0017.html ; public egress
+  https://support.huaweicloud.com/price-obs/obs_42_0005.html ; scoped object policy
+  https://support.huaweicloud.com/perms-cfg-obs/obs_40_0018.html ; IAM access key
+  https://support.huaweicloud.com/usermanual-iam/iam_02_0003.html .
+- R2 Standard was proposed as an alternative: verified current official pricing
+  includes 10 GB-month storage, 1M Class A and 10M Class B monthly operations,
+  with no R2 egress charge. Allowances are account-wide, not a spending cap.
+  https://developers.cloudflare.com/r2/pricing/ . No R2 subscription, bucket or
+  object was created/read. Existing Cloudflare MCP can read the commerce zone;
+  billing-subscription access was denied. Do not confuse that with an expired
+  login or claim actual R2 access has passed.
 
 ## Work log
 
@@ -156,3 +226,30 @@ These do not block independent installation and implementation work:
   same-origin referrer fix preserves CSRF checking and passes regression tests.
   Browser rerun is pending. Eight original container IDs remain unchanged;
   9,423 MiB RAM and 23 GiB disk are available after deployment.
+- 2026-09-17: Release `4433cc9` real browser verification passes at 1440x1000
+  and 390x844: authenticated workspace, correct login origin, logout, no runtime
+  errors, no initial broken images and no horizontal overflow. Screenshots stay
+  under the ignored local runtime directory.
+- 2026-09-17: Local automation foundation has 20 passing Node tests, including
+  real SQLite reopen, daily deduplication, DST schedule, conservative model cost
+  reservations, paused/low-disk denial, source expiry and unknown-submit readback.
+  Provider tests are synthetic boundary tests, not live AI or platform evidence.
+  Disk regression initially reached storage instead of rejecting; the guard now
+  rejects below-reserve or unmeasurable disk before an upload is proxied.
+  The pinned upstream native publisher retries some failed submissions, so a
+  narrowly scoped patch is guarded by compiled artifact SHA-256
+  `83d1273d0d0403e18dbef4e8212e56547cdd278bf4d55083cc7d49f9880eb68d`.
+  Runtime patch build, new worker deployment, private controls, backup/restore
+  and broader management navigation are still pending. No source changes after
+  `4433cc9` are deployed yet. Read-only production source check passed for Model
+  018; Model 003 had a transient fetch failure, while its public page still
+  confirms the test checkout. Do not turn that partial source check into a
+  completed generation/publishing claim.
+- 2026-09-17: Expanded the local automation to 27 passing Node tests and nine
+  Python checks. Three focused tests first reproduced pause/resume races,
+  authorization revoked during create, and a queued flow stuck after restart;
+  those regressions now pass. Recovery preserves the original grant hash and
+  never creates a second flow; changed grants/windows or six unresolved reads
+  settle paused. Added idempotent automation provisioning and scoped cold
+  snapshot/isolated restore tooling. Actual ARM build/deployment and backup
+  restoration are still pending; no model/platform/storage-cloud calls.

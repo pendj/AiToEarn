@@ -32,5 +32,24 @@ Resume checkpoint: remote `/srv/luxsabers-social` has isolated healthy stores,
 AI/server/web and private gateway. Use private UI port 18880 and signed-image
 port 19000 through the existing SSH tunnel; local 18080 belongs to another
 service. Initial MongoDB and ARM gateway fixes are recorded in the plan. Real
-HTTP login and source-matched private image upload pass. Browser and automation
-verification remain open; model budget is zero and no social account is connected.
+HTTP login, source-matched private image upload, and real desktop/mobile workspace
+checks pass. Automation changes after `4433cc9` are local only until explicitly
+recorded as deployed: SQLite daily intent, cost reservations, pause controls,
+source checks, and a hash-guarded native retry patch. No model/provider calls.
+Current local tests: 27 Node and nine Python tests pass; new remote worker,
+private controls and cold backup/isolated-restore validation are pending.
+Pause/resume races and same-flow restart recovery have focused regression tests;
+never run a second worker beside the Compose service.
+Model budget remains zero and no social account is connected.
+
+OBS addition: user owns bucket `pendjun`, endpoint
+`obs.cn-south-4.myhuaweicloud.com`, bucket host
+`pendjun.obs.cn-south-4.myhuaweicloud.com`, with a 40GB standard multi-AZ storage
+package. Proposed isolated prefix is `luxsabers-social/`; do not read/list/change
+other bucket contents. A key is stored disabled in ignored local `.private/obs.json`
+(0600); never print it. User reports the traffic package expired. No OBS request,
+credential transfer or integration has occurred. Do not assume a storage package
+covers requests/egress or mutate bucket-wide policies. R2 is only a proposed
+alternative: subscription, storage authority and runtime credentials are missing.
+Existing Cloudflare MCP login successfully reads `luxsabers.com`; subscription
+metadata returns a permission error. Do not repeat login or claim R2 is active.

@@ -3,6 +3,16 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { buildUploads } from '../gateway/uploads.mjs';
 
+test('low or unmeasurable disk stops a signed upload before storage is called', async t => {
+  for (const disk of [{ path: '.', minimumFreeBytes: Number.MAX_SAFE_INTEGER }, { path: '/missing-social-disk', minimumFreeBytes: 1 }]) {
+    const app = await buildUploads({ origins: ['http://127.0.0.1:18880'], disk, storage: { endpoint: 'http://127.0.0.1:9', bucket: 'luxsabers-social' } });
+    t.after(() => app.close());
+    const result = await app.inject({ method: 'PUT', url: `/luxsabers-social/photo.png?X-Amz-Signature=${'a'.repeat(64)}`,
+      headers: { host: '127.0.0.1:19000', 'content-type': 'image/png' }, payload: 'data' });
+    assert.equal(result.statusCode, 507);
+  }
+});
+
 test('only bounded signed image requests reach the storage service with original signing host', async t => {
   let calls = 0;
   const upstream = createServer((req, res) => {

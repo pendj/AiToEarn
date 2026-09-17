@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import proxy from '@fastify/http-proxy';
+import { diskStatus } from '../automation/disk.mjs';
 
 // S3 validates the short-lived signed URL. No storage credentials are returned.
 export async function buildUploads(config) {
@@ -30,6 +31,7 @@ export async function buildUploads(config) {
       const length = Number(request.headers['content-length']);
       if (!Number.isSafeInteger(length) || length <= 0 || length > 50 * 1024 * 1024) return reply.code(413).send({ error: 'Invalid asset size' });
       if (!/^image\/(jpeg|png|webp)$/.test(request.headers['content-type'] || '')) return reply.code(415).send({ error: 'Only product images are enabled' });
+      if (config.disk && !(await diskStatus(config.disk, length)).ok) return reply.code(507).send({ error: 'Uploads paused: disk reserve unavailable' });
     }
   });
   await app.register(proxy, { upstream: config.storage.endpoint, prefix: '/', http2: false,

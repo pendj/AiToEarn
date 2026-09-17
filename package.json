@@ -9,7 +9,7 @@
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "start": "node gateway/server.mjs",
-    "check": "node --check gateway/app.mjs && node --check gateway/server.mjs && python3 -m unittest discover -s tests -p 'test_*.py'"
+    "check": "node scripts/check-syntax.mjs && python3 -m unittest discover -s tests -p 'test_*.py'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1134.0",
@@ -17,6 +17,7 @@
     "@fastify/http-proxy": "11.6.2",
     "@fastify/rate-limit": "11.2.0",
     "@fastify/secure-session": "8.3.0",
+    "bullmq": "5.76.3",
     "fastify": "5.12.5",
     "jose": "6.2.12"
   },

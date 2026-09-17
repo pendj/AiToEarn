@@ -4,6 +4,11 @@ import { randomBytes, scryptSync } from 'node:crypto';
 import { createServer } from 'node:http';
 import { jwtVerify } from 'jose';
 import { buildApp } from '../gateway/app.mjs';
+import { AutomationState } from '../automation/state.mjs';
+import { automationControl } from '../automation/control.mjs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const password = 'test-only-password-not-for-deployment';
 const salt = randomBytes(16);
@@ -114,4 +119,28 @@ test('proxy injects only a short-lived server JWT, not browser credentials', asy
   assert.equal(response.statusCode, 200);
   assert.deepEqual(response.json(), { path: '/user/mine', code: 0 });
   assert.ok(!response.body.includes(config.jwtSecret));
+});
+
+test('private automation controls keep zero-budget resume blocked and persist a real pause', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'social-controls-'));
+  const state = new AutomationState(join(directory, 'state.sqlite'));
+  const control = automationControl(state, { pause: async () => {} }, async () => ({ model: { authorized: false }, publishing: { authorized: false } }));
+  const app = await buildApp(config, { enableProxy: false, automation: control });
+  t.after(async () => { await app.close(); state.close(); await rm(directory, { recursive: true }); });
+  assert.equal((await app.inject({ url: '/session/automation.json', headers })).statusCode, 302);
+  const cookie = await login(app);
+  const auth = { ...headers, cookie };
+  const status = await app.inject({ url: '/session/automation.json', headers: auth });
+  assert.equal(status.json().control.paused, 1);
+  assert.equal(status.json().dailyBudgetMicrousd, 0);
+  assert.equal((await app.inject({ method: 'POST', url: '/session/automation/resume', headers: auth })).statusCode, 409);
+  assert.equal(state.control().paused, 1);
+  const paused = await app.inject({ method: 'POST', url: '/session/automation/pause', headers: auth });
+  assert.equal(paused.statusCode, 302);
+  assert.equal(state.control().reason, 'operator_paused');
+  assert.equal((await app.inject({ method: 'POST', url: '/session/automation/pause', headers: { ...auth, origin: 'https://attacker.example' } })).statusCode, 403);
+  const page = await app.inject({ url: '/session', headers: auth });
+  assert.match(page.body, /13:00 America\/New_York/);
+  assert.match(page.body, /disabled[^>]*>Resume automation/);
+  for (const secret of [config.jwtSecret, config.sessionKey, password]) assert.ok(!page.body.includes(secret));
 });
