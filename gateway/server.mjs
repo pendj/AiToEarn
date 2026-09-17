@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { buildApp } from './app.mjs';
 import { buildUploads } from './uploads.mjs';
 import { buildR2Egress } from './r2-egress.mjs';
+import { buildModelGateway } from './model-gateway.mjs';
 import { MediaBudget } from './media-budget.mjs';
 import { AutomationState } from '../automation/state.mjs';
 import { NativeQueues } from '../automation/upstream.mjs';
@@ -20,11 +21,18 @@ const mediaBudget = config.storage.provider === 'r2' ? new MediaBudget('/data/me
 const app = await buildApp(config, { automation, mediaBudget });
 const uploads = await buildUploads(config, { mediaBudget });
 const egress = config.storage.provider === 'r2' ? buildR2Egress({ mediaBudget, secretKey: config.storage.secretKey }) : null;
+const modelGateway = config.modelGateway ? buildModelGateway(config.modelGateway, {
+  state, readAuthority: async () => JSON.parse(await readFile('/run/private/automation-authority.json', 'utf8')),
+}) : null;
 if (egress) await new Promise((resolve, reject) => {
   egress.once('error', reject);
   egress.listen(8082, '0.0.0.0', resolve);
 });
+if (modelGateway) await new Promise((resolve, reject) => {
+  modelGateway.once('error', reject);
+  modelGateway.listen(8083, '0.0.0.0', resolve);
+});
 await app.listen({ host: '0.0.0.0', port: 8080 });
 await uploads.listen({ host: '0.0.0.0', port: 8081 });
-for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => { await app.close(); await uploads.close(); if (egress) await new Promise(resolve => egress.close(resolve)); await queues?.close(); state?.close(); mediaBudget?.close(); process.exit(0); });
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => { await app.close(); await uploads.close(); if (egress) await new Promise(resolve => egress.close(resolve)); if (modelGateway) await new Promise(resolve => modelGateway.close(resolve)); await queues?.close(); state?.close(); mediaBudget?.close(); process.exit(0); });
 console.log('Private social gateway listening; see authenticated automation status for authority and schedule.');

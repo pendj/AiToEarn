@@ -350,7 +350,7 @@ Both are prereleases; beta.7 was the latest release at the local upgrade check.
 - Remote: `ubuntu@147.224.48.149`, `/home/ubuntu/ccload`, existing loopback API
   `127.0.0.1:18080`; not the AiToEarn server. Upgraded from `v4.6.21-beta.1`.
   One designated Codex Pro channel was imported using ccload's native endpoint
-  over SSH, with upstream credential validation. Total: 3 channels, 1 access
+  over SSH, with upstream credential validation. Total: 3 channels, 2 access
   token, 1 API key and 27 model entries. No model-generation call was made.
 - Local: `/root/ccload`, UI `http://127.0.0.1:8080/web/`. Upgraded from
   `v4.10.10-beta.3` through beta.6 to beta.7; retains 614 channels, 2 access tokens,
@@ -385,9 +385,59 @@ the old database removes later state, including the newly imported remote
 channel; environment restoration is unnecessary unless independently changed.
 No rollback has been executed.
 
-AiToEarn is not connected to this candidate yet. A restricted gateway token,
-target-only connection, actual generation and quota/cost rules still need to be
-integrated and verified. Both copies currently share the account's OAuth session;
+A dedicated native access token (ID 2) now permits only channel 3 and
+`gpt-5.6-luna`, with concurrency one and a seven-day expiry. Its creation followed
+an integrity-checked online backup at
+`/home/ubuntu/ccload/backups/pre-social-model-o9r4pr9b/ccload.db`. The existing
+token is unchanged. The scoped connection file is protected at
+`/home/ubuntu/ccload/.private/luxsabers-social-model.json` and in this project's
+local/remote `.private/ccload-model.json`; no admin/OAuth credential is copied
+to AiToEarn. Read-only HTTPS checks from the social server return only Luna
+(200) and deny admin access (401). The initial default Python request identifier
+was denied by Cloudflare; the explicit `LuxSabers-Social/1.0` identifier passes,
+without firewall, DNS or proxy changes.
+
+The local connection implementation is not deployed yet. It adds only internal
+gateway port 8083, with no host publication or native-service network expansion.
+The native AI gets a separate internal key, not the ccload token. Only filtered
+model metadata and bounded text chat are supported. Generation requires the
+existing authority, unpaused state and daily reservation; its upstream attempt
+is persisted before sending and cannot be repeated after an ambiguous result.
+Native SDK retries are disabled with a pinned-artifact hash guard.
+
+For activation, first preserve exact old source/images/environment and make an
+online automation SQLite backup. Transfer reviewed source only, then run as the
+deployment user, not root:
+
+```sh
+python3 scripts/activate-model.py --root /srv/luxsabers-social
+python3 scripts/prepare-release.py --release <verified-commit>
+docker compose config --quiet
+docker compose build gateway ai
+docker compose up -d --no-deps --wait --wait-timeout 180 gateway ai
+docker compose exec -T gateway node --input-type=module < scripts/verify-model-connection.mjs
+```
+
+`activate-model.py` changes only `.private/gateway.json` and `.private/ai.yaml`;
+originals and hashes stay in `.runtime/model-connection/original-config` and
+`activation.json`. All authority, R2, publishing and worker settings remain
+unchanged. The verifier checks actual provider metadata, native registration and
+unauthorized generation denial; it refuses an authorized model configuration.
+It does not verify generation. Rollback uses the same script with `--rollback`,
+matching pre-change source/environment and only the old gateway/AI images. It
+refuses later configuration edits. Preserve media, authority and the additive
+`model_requests` table; do not restore an old live database to erase attempts.
+Never remove an attempt to force a retry. Replace an expiring scoped token only
+through ccload's native management interface, retaining the same restrictions;
+an expired token stops the connection, not the rest of the app.
+
+Real generation remains pending. The read-only designated Pro quota reports
+usage available and no purchased credits, but that is not a durable spending
+cap. ccload's zero cost limit means unlimited. Do not change the existing
+`hardProviderLimitVerified` flag without evidence or enable paid fallback.
+Subscription usage and additional purchased credits are distinct:
+https://learn.chatgpt.com/docs/pricing.md .
+Both copies currently share the account's OAuth session;
 independent renewal and concurrent long-term use have not been verified. Codex
 subscription sign-in is not a general OpenAI Platform API key:
 https://learn.chatgpt.com/docs/auth . Paid-call budget remains zero, and automation

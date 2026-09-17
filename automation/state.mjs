@@ -15,6 +15,7 @@ export class AutomationState {
       INSERT OR IGNORE INTO control(id,paused,reason) VALUES(1,1,'awaiting_authorization');
       CREATE TABLE IF NOT EXISTS themes (day TEXT PRIMARY KEY, id TEXT UNIQUE NOT NULL, state TEXT NOT NULL, source TEXT, content TEXT, fingerprint TEXT UNIQUE, reason TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS reservations (day TEXT PRIMARY KEY, month TEXT NOT NULL, amount INTEGER NOT NULL CHECK(amount>=0), authorization TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS model_requests (day TEXT PRIMARY KEY, authorization TEXT NOT NULL, created_at TEXT NOT NULL, state TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS dispatches (day TEXT NOT NULL, account_id TEXT NOT NULL, platform TEXT NOT NULL, flow_id TEXT NOT NULL UNIQUE, fingerprint TEXT NOT NULL, grant_hash TEXT NOT NULL, state TEXT NOT NULL, checks INTEGER NOT NULL DEFAULT 0, next_check TEXT, work_id TEXT, work_link TEXT, reason TEXT, PRIMARY KEY(day,account_id), UNIQUE(account_id,fingerprint));
       CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY, time TEXT NOT NULL, kind TEXT NOT NULL, reason TEXT NOT NULL);
       PRAGMA user_version=1;`);
@@ -62,6 +63,19 @@ export class AutomationState {
       this.fail(day, 'duplicate_content', now);
       return null;
     }
+  }
+  claimModelRequest(day, model, now) {
+    return this.transaction(() => {
+      const theme = this.theme(day);
+      const reservation = this.db.prepare('SELECT authorization FROM reservations WHERE day=?').get(day);
+      if (this.control().paused || theme?.state !== 'generating' || reservation?.authorization !== model.approvalRef) return false;
+      return this.db.prepare("INSERT OR IGNORE INTO model_requests(day,authorization,created_at,state) VALUES(?,?,?,'unknown_no_retry')")
+        .run(day, model.approvalRef, now).changes === 1;
+    });
+  }
+  recordModelRequest(day, state) {
+    if (!['response_received', 'unknown_no_retry'].includes(state)) throw new Error('Invalid model request state');
+    this.db.prepare('UPDATE model_requests SET state=? WHERE day=?').run(state, day);
   }
   fail(day, reason, now) { this.db.prepare("UPDATE themes SET state='blocked',reason=?,updated_at=? WHERE day=?").run(reason, now, day); }
   saveDraftResult(day, materialId, now) {

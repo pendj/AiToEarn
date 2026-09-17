@@ -101,11 +101,21 @@ Remote ccload runs pinned `v4.10.11-beta.6`; local was subsequently upgraded to
 pinned `v4.10.11-beta.7` (both prereleases). Both are healthy with valid SQLite
 databases. Local beta.7 retains all recorded counts; one startup upstream model
 catalog fetch had a connection-reset warning, not a health/database failure.
-Remote has 3 channels/1 API access token after one
+Remote has 3 channels/2 API access tokens after one
 designated Codex Pro credential import; local retains 614 channels/2 access
 tokens. The import's upstream credential validation passed; no generation call
 was made. The local account was retained, not moved or disabled. AiToEarn has
-not been connected to this gateway, and its egress/pause/budget settings remain
-unchanged. Exact backups and rollback boundaries are in README's model gateway
+not yet activated this connection, and its egress/pause/budget settings remain
+unchanged. A dedicated expiring token (ID 2) is restricted to channel 3 and
+`gpt-5.6-luna`, concurrency one; its protected file is local/remote
+`.private/ccload-model.json`. Real HTTPS metadata from the social host returns
+only Luna; admin access returns 401. The initial Python default User-Agent was
+rejected by Cloudflare; the honest `LuxSabers-Social/1.0` identifier passes.
+No firewall or proxy change was needed. The new internal-only gateway and native
+retry guard are local pending deployment. Generation remains unauthorized:
+current Pro quota/no purchased credits is not a lasting provider spending cap.
+Do not mark `hardProviderLimitVerified` true from that snapshot or use ccload's
+zero cost limit as a zero-spend cap; zero means unlimited. Exact backups and
+rollback boundaries are in README's model gateway
 section. Reuse the recorded SSH host identity and the key in the user's existing
 `D:\Documents\private\Oracle\147.224.48.149` directory; never print the key.

@@ -74,8 +74,10 @@ No unrelated business service, data, pricing, policy, or payment state may chang
   registered product photos have source-matched private JPEG derivatives and
   provenance records; no public image URL or provider media acceptance yet.
   A user-designated Codex channel is now imported and credential-validated in
-  existing ccload on `147.224.48.149`; AiToEarn integration and generation are
-  still unverified. This is not an API billing or publishing authorization.
+  existing ccload on `147.224.48.149`. A dedicated channel/Luna-only token passes
+  real HTTPS metadata/admin-denial checks from the social host. Local guarded
+  native integration is implemented but not deployed; actual generation remains
+  unverified. This is not an API billing or publishing authorization.
 - Work: reuse authorized product photos and verified current public product
   facts, retain source/configuration provenance and freshness, and use an
   explicitly authorized model connection. Start with text and existing images.
@@ -96,6 +98,23 @@ No unrelated business service, data, pricing, policy, or payment state may chang
   required agreements. No account impersonation or browser-bypass publisher.
 - Verify: actual account capabilities and least-privilege authorization; no
   public post until explicit publishing authority is recorded.
+
+### Model connection slice (2026-09-18)
+
+- Reuse `https://ccload.luxsabers.com`; real HTTP redirect and HTTPS health pass.
+  Restrict a dedicated token to the designated channel and `gpt-5.6-luna`, with
+  concurrency one. No admin password or account OAuth credential goes to AiToEarn.
+- Add an internal-only model route to the existing gateway. Native AI stays
+  isolated; only bounded text chat and a filtered model-list read are allowed.
+  Check existing model authority and pause state before generation, persist the
+  sole daily upstream attempt, and disable native SDK retries. Keep R2 unchanged.
+- Real read-only quota check: Pro, 9% used, requests allowed, no additional
+  credits and zero credit balance. This snapshot is not a provider spending cap.
+  ccload's zero cost limit means unlimited, so do not treat it as zero-spend proof
+  or mark the existing hard-provider-limit flag verified. Generation stays gated
+  until a defensible subscription-only or explicitly budgeted boundary exists.
+- Verify the actual restricted model connection and unauthorized-call denial;
+  these are not proof of generation, daily publishing, or overall completion.
 
 ## Outcome 5: Persistent daily automation with controlled publishing
 
@@ -449,3 +468,17 @@ These do not block independent installation and implementation work:
   One startup upstream model-catalog fetch had a connection-reset warning;
   no model-generation request was made. Remote ccload stays at beta.6 and
   AiToEarn remains unchanged, paused and unconnected to the model gateway.
+- 2026-09-18: Created one seven-day native ccload token restricted to channel 3,
+  Luna and concurrency one, after protected online SQLite backup. Remote now
+  has two access tokens; existing account/token unchanged. Only the scoped token
+  reached AiToEarn's protected connection file. Real social-host HTTPS model
+  metadata returns Luna only (200); admin access is denied (401). An initial
+  Python default User-Agent returned 403; the explicit service identifier passes.
+  No proxy/firewall modification or generation request was needed. Implemented
+  an internal-only model gateway, durable single daily attempt, native no-retry
+  patch and exact two-config activation/rollback. Final local tests pass 53 Node,
+  23 Python and syntax checks, including the runtime verifier; native
+  SDK compatibility passed a synthetic local HTTP test only. Deployment and
+  actual generation are pending. Read-only Pro quota shows availability and
+  zero purchased credits, not a permanent zero-spend cap. Authority remains
+  false; no platform, public post, paid call or Git push.
