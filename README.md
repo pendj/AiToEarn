@@ -116,6 +116,13 @@ trusted origins, and retain private management access controls.
 - Do not run a second worker or invoke one-off ticks beside the Compose worker.
   Retain private state when restarting; do not delete it to clear a failed day.
 
+Initial zero-authorization runtime check (no model or provider requests):
+
+```sh
+docker compose exec -T automation node --input-type=module < scripts/verify-paused-worker.mjs
+python3 scripts/verify-http.py
+```
+
 ## Operations and recovery
 
 - Startup/update: change only this project's reviewed files/image pins, record

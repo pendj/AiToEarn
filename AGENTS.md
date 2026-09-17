@@ -36,8 +36,10 @@ HTTP login, source-matched private image upload, and real desktop/mobile workspa
 checks pass. Automation changes after `4433cc9` are local only until explicitly
 recorded as deployed: SQLite daily intent, cost reservations, pause controls,
 source checks, and a hash-guarded native retry patch. No model/provider calls.
-Current local tests: 27 Node and nine Python tests pass; new remote worker,
-private controls and cold backup/isolated-restore validation are pending.
+Current local tests: 27 Node and ten Python tests pass; new remote worker and
+private controls validation are pending. Pre-upgrade cold snapshot
+`20260917T121131Z-4433cc9` passed four isolated volume byte comparisons and
+restored MongoDB/Redis startup. Restore-test copies were removed; backup retained.
 Pause/resume races and same-flow restart recovery have focused regression tests;
 never run a second worker beside the Compose service.
 Model budget remains zero and no social account is connected.

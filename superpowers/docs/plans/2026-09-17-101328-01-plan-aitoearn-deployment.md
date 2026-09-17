@@ -253,3 +253,12 @@ These do not block independent installation and implementation work:
   settle paused. Added idempotent automation provisioning and scoped cold
   snapshot/isolated restore tooling. Actual ARM build/deployment and backup
   restoration are still pending; no model/platform/storage-cloud calls.
+- 2026-09-17: Cold snapshot `20260917T121131Z-4433cc9` preserves the original
+  running service image IDs, exact private configuration and four project
+  volumes. Initial isolated restore failed because Docker stdin was not enabled;
+  a regression test reproduced it, the input-forwarding fix passed, and the real
+  rerun verified archive checksums, four byte-identical restored volumes and
+  MongoDB/Redis startup. Temporary restore containers/volumes were removed;
+  original services and the 1.7 MiB snapshot remain. No off-server backup or
+  restored public-media/model/provider acceptance is claimed. Local checks now
+  comprise 27 Node tests and ten Python tests.
