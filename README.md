@@ -4,9 +4,10 @@ Private, single-operator AiToEarn deployment for the existing ARM server. The
 initial release has no model credentials, no connected social accounts, and no
 publishing authorization. It is not a completed social publishing service yet.
 
-Verified application release: `814be0ff08f78717e48ec771ff6c4dd38f4ddcde`
-(2026-09-17). Eight services are healthy; real private HTTP and desktop/mobile
-controls pass. The worker stays paused across a service restart with no model
+Verified gateway/server/AI release: `b6321d67fd070f15c2ab90a959682276e5b533a7`
+(2026-09-17), with private R2 media; automation remains on `814be0f`.
+Eight services are healthy; real private HTTP, native image upload, exact R2
+download and desktop/mobile controls pass. The worker remains paused with no model
 reservations or dispatches. This is not evidence of a real generated or published
 post. The existing unrelated business containers were not recreated or restarted.
 
@@ -14,7 +15,7 @@ post. The existing unrelated business containers were not recreated or restarted
 
 - Upstream source and Linux ARM64 images are pinned in `images.lock.json`.
 - MongoDB, Redis, app services, and storage have their own internal Docker
-  network and volumes. AI/server have no external egress initially; the small
+  network and volumes. AI/server have only target-specific R2 egress; the small
   automation companion can check the allowlisted public commerce sources.
 - Only `127.0.0.1:18880` (authenticated workspace) and `127.0.0.1:19000`
   (short-lived, signed image uploads via the gateway) are bound on the host.
@@ -81,14 +82,15 @@ and the default jurisdiction; automatic placement returned WNAM. Fresh metadata
 readback confirms r2.dev access is disabled and no custom domains are attached.
 This operation uploaded no objects and created no runtime credentials.
 
-AiToEarn still uses its existing private local object store. Dedicated S3 keys
-are now stored privately, and real R2 upload, metadata, byte-identical download,
-anonymous rejection and temporary-object cleanup pass. Application integration,
-cost controls, and authorized platform-readable media access remain separate.
+AiToEarn now uses this private R2 bucket. The existing 16,804-byte image was
+copied at its original key, with the local original preserved. One authorized
+56,898-byte JPEG passed actual native browser upload, confirmation, direct R2
+byte comparison and desktop/mobile private reads. Total: two Standard images,
+73,702 bytes. Anonymous access is denied. Persistent storage/request guards pass,
+including gateway restart. Authorized platform-readable media remains pending.
 Do not reuse MCP OAuth as an application storage credential or enable public
-bucket access implicitly. No service restart or application rollback is needed
-for this bucket-only change. If it is later abandoned, verify it is still empty
-and unused and obtain deletion approval; never delete objects to force removal.
+bucket access implicitly. The bucket is in use; do not delete it or its contents.
+The exact application rollback is documented below and preserves R2 objects.
 
 The existing MCP can manage this bucket, but both account and user token
 permission-group endpoints return error 9109. Do not repeat login or use a broad
@@ -96,7 +98,8 @@ administrator key. In Cloudflare R2 > Overview > Manage API Tokens, create an
 account or user token with **Object Read & Write**, limited to
 `luxsabers-social-media` only. Do not choose Admin Read & Write or all buckets.
 The [official R2 authentication guide](https://developers.cloudflare.com/r2/api/tokens/)
-describes the distinction. Record its two S3 keys through the local terminal:
+describes the distinction. Existing credentials are already configured; do not
+request or create another token without need. For a fresh installation only:
 
 ```sh
 python3 scripts/configure-r2.py
@@ -119,15 +122,18 @@ ambiguous write is not automatically repeated. These calls still consume R2
 operations; the tool is not a billing cap. The first real check found that R2
 returns 400 with `InvalidArgument` / `Authorization` for unsigned requests. The
 checker now recognizes that exact response, while rejecting other 400 responses;
-the corrected real check passes. Both probes were removed. No application media
-has been migrated yet. Current account usage is well below the Standard free
+the corrected real check passes. Both probes were removed. Application migration
+and verification now also pass. Current usage is well below the Standard free
 allowances, but those allowances are shared and are not a hard spending limit.
 
 The local gateway now honors the configured storage signing region. Its R2
 initializer performs only a bucket HEAD, never bucket creation, CORS, policy or
-lifecycle writes. This is preparation, not a completed application migration:
-signed-upload host routing, old-object continuity, server egress and actual
-desktop/mobile upload/download must pass before replacing the deployed config.
+lifecycle writes. Signed-upload host routing, old-object continuity, restricted
+server/AI egress and actual desktop/mobile image reads have been verified.
+`node scripts/verify-r2-app.mjs --private-image` uses the real browser file input,
+never generation/publishing. Its ignored local intent/result prevents repeated
+uploads on rerun; failures must be reconciled, not bypassed by deleting evidence.
+The check requires the existing SSH tunnel and prepared Model 003 JPEG.
 
 ### Private R2 migration
 
@@ -150,6 +156,10 @@ or an unavailable quota service fail closed. Failed intents/calls stay reserved
 until deliberate reconciliation;
 do not remove the ledger to reset usage. This is an application limit, not an
 account-wide Cloudflare billing cap. Video upload and public media remain off.
+Failed/abandoned uploads remain reserved conservatively. Deleting an image does
+not automatically reclaim the ledger allowance; reconcile exact object state
+before adjusting it. Do not delete database rows to reset limits each month.
+These are Standard-storage allowances, not Infrequent Access allowances.
 
 For the existing installation, after building the reviewed gateway/server/AI
 images, securely transfer only `.private/r2.json` with mode 0600. Never print it.
@@ -178,6 +188,23 @@ then restart only `gateway ai server` with `--no-build --no-deps`. Local origina
 and all R2 objects remain untouched. New R2-only images remain recoverable in R2
 but are not visible through the original local-storage app until reactivation or
 an explicitly verified reverse copy. Preserve the media allowance ledger too.
+
+The deployed switch retains `.runtime/releases/pre-r2-source-814be0f.tar.gz`
+(original source and `.env`) and the exact original configurations under
+`.runtime/r2-migration/original-config/`. To undo this switch only, from
+`/srv/luxsabers-social`, before making later application/config changes:
+
+```sh
+docker compose stop gateway server ai
+python3 scripts/activate-r2.py --rollback
+tar -xzf .runtime/releases/pre-r2-source-814be0f.tar.gz -C /srv/luxsabers-social
+docker compose config --quiet
+docker compose up -d --no-build --no-deps --wait --wait-timeout 180 gateway ai server
+```
+
+The original `814be0f` gateway/server tags and pinned upstream AI image are
+retained. Do not roll back databases or automation authority. This rollback has
+not been executed; the bounded copy and original-byte checks passed.
 
 ## Deployment
 
@@ -212,7 +239,7 @@ unknown version.
 
 For an existing installation, first run the scoped backup below using the
 currently deployed configuration. After transferring the reviewed source and
-running both provisioning scripts and `prepare-release.py`, build the two local
+running both provisioning scripts and `prepare-release.py`, build the required
 images, then update only the changed services:
 
 ```sh
@@ -271,8 +298,10 @@ python3 scripts/verify-http.py
 - Resource stop: do not deploy below 12 GiB free disk. Pause new content/upload
   jobs below 10 GiB free disk. No local model inference or video generation.
   R2 private media allowance is capped at 10 GB total; per-file limit is 50 MiB. Logs are
-  capped at 2 x 5 MiB per service. Incomplete multipart uploads expire after
-  seven days; confirmed user assets are retained until deliberate removal.
+  capped at 2 x 5 MiB per service. R2 multipart/video uploads are disabled; no
+  bucket-wide lifecycle was changed. The retained local store's seven-day
+  incomplete-upload rule does not imply an R2 lifecycle. Confirmed assets are
+  retained until deliberate removal.
 - Emergency isolation: from this exact project directory, `docker compose stop`
   stops only this new stack and keeps its volumes. This is the first-install
   rollback and does not require changing the existing proxy or commerce app.
@@ -286,7 +315,8 @@ python3 scripts/verify-http.py
   configuration, including `.runtime/automation` when present, then starts the
   same services. Run from the exact deployment
   directory. Backups are private under `.runtime/backups/<snapshot-id>/` and are
-  not uploaded to OBS/R2 or automatically deleted.
+  not uploaded to OBS/R2 or automatically deleted. This backup does not copy
+  R2-only objects; those require a separately budgeted object backup strategy.
 - Verify recovery: `python3 scripts/project-backup.py verify --snapshot <snapshot-id>`
   verifies all checksums, restores into new isolated volumes, compares every
   volume's bytes, starts restored MongoDB/Redis with no network access, and
@@ -316,9 +346,11 @@ Do not use another application's key or subscribe to a paid service implicitly.
 
 Huawei OBS is disabled: its supplied key remains only in ignored local private
 configuration; the user reports the traffic package expired. No OBS requests or
-migration occurred. The private R2 bucket above now exists under specific user
-authorization; no uploads, runtime integration or approval for ongoing billable
-usage were added.
+migration occurred. R2 integration is authorized only inside the Standard free
+envelope: 10 GB-month, 1M Class A and 10M Class B requests/month, with no R2 egress
+charge. See https://developers.cloudflare.com/r2/pricing/ . Application limits
+stop at 9.9 GB total reserved storage and 10,000 requests short of each allowance.
+No ongoing billable usage is approved. Storage does not reset at month-end.
 R2 free allowances are account-wide, not a hard spending cap. Billing metadata
 is permission-denied, which is not an expired login. Do not request a full
 re-login based on that denial alone.

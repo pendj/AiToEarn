@@ -40,12 +40,14 @@ No unrelated business service, data, pricing, policy, or payment state may chang
 
 ## Outcome 2: Isolated, private, recoverable deployment
 
-- Status: private deployment verified at release
-  `814be0ff08f78717e48ec771ff6c4dd38f4ddcde`; eight services are healthy. Real
+- Status: private R2 gateway/server/AI verified at release
+  `b6321d67fd070f15c2ab90a959682276e5b533a7`; automation remains on `814be0f`.
+  Eight services are healthy. Real
   private HTTP, source-matched image storage, desktop/mobile workspace and
-  automation controls pass. Only server/gateway/automation were updated; the
+  automation controls pass. Only gateway/server/AI changed in the R2 rollout;
   other social services and eight unrelated business container IDs are unchanged.
-  Cold backup/isolated restore passed. Cloud media storage is still pending.
+  Cold backup/isolated restore passed. Private R2 image storage and free-envelope
+  guards are deployed; platform-readable media is not enabled.
 - Work: dedicated Compose project, internal stores, independent volumes, pinned
   compatible ARM images, unique secrets, no auto-admin login, private management
   through SSH forwarding, resource caps, log rotation, and disk/retention limits.
@@ -162,10 +164,10 @@ These do not block independent installation and implementation work:
 - An applicable model connection and explicit permitted spend (currently zero).
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
-- R2 application integration and sustained storage cost controls. Supplied S3
-  keys pass object write/read/delete on the dedicated private bucket; broader
-  credential scope is not independently proven. No runtime credential transfer
-  or application storage switch yet. Model 003/018 JPEGs remain local.
+- Platform-readable media and actual provider acceptance after account selection.
+  Private R2 app storage/free-envelope guards are complete; wider credential scope
+  is not independently proven. R2-only media has no off-provider backup yet.
+  Model 003 JPEG is uploaded privately; Model 018 JPEG remains local.
 
 ## OBS storage addition (2026-09-17)
 
@@ -388,3 +390,31 @@ These do not block independent installation and implementation work:
   runtime env files; isolated generated configuration now renders successfully.
   These checks are not ARM deployment or real app/R2 evidence; remote remains
   `814be0f` pending the scoped rollout.
+- 2026-09-17: Local commit `b6321d6` built on ARM and deployed only to
+  gateway/server/AI. Dedicated R2 configuration transferred with 0600 mode;
+  hash-guarded activation changed only the three services' storage settings.
+  Existing source/environment retained at
+  `.runtime/releases/pre-r2-source-814be0f.tar.gz`, configuration originals at
+  `.runtime/r2-migration/original-config`, and original images retained. One
+  16,804-byte local image was copied to the same key, verified, never removed.
+  Real native browser file selection then passed signing, PUT and confirmation
+  for the 56,898-byte authorized Model 003 JPEG; signature binds content length.
+  Direct R2 bytes and old/private links match; desktop/mobile reads and anonymous
+  denial pass. R2 inventory is two Standard objects / 73,702 bytes. Screenshots
+  and object identifiers remain private in `.runtime/r2-app`.
+  The browser verifier's first navigation wait failed before any upload; using
+  DOM-ready navigation passed. The first restart check ran while Docker health
+  was still starting; the subsequent health-aware check passed. Gateway restart
+  retained one byte reservation and Class A/B counts of 1/7; no quota reset.
+  Real server/AI unrelated CONNECT target and general Internet access are denied.
+  Eight social services healthy, other eight business container IDs unchanged,
+  23 GiB disk free. Exact image IDs: gateway
+  `sha256:51c5448e45834c0bf2f7be4752fee58c00402eede28f161c7c405b21cc8df928`,
+  server `sha256:45ba775f83c015247140e2077ad3bfe5117098a572070d18a4fed0fb13e8725c`,
+  AI `sha256:35f25f8b400e1a1a99941c7c29cab29e8f43da29d7678c83f0784b5ba8907f8e`.
+  Source/volume originals and R2 media remain intact; no storage rollback was
+  executed. Video/public-media, model calls, social authorization and posting
+  remain disabled. No Git push, public DNS/bucket changes or paid resource.
+  Post-restart desktop/mobile readback and native confirmation passed without
+  another upload. Added a reusable guarded browser check; syntax and all 21
+  Python checks pass, with the unchanged 46 Node-test evidence retained.
