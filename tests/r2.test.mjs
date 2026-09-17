@@ -73,14 +73,18 @@ test('credential reader rejects exposed permissions and symlinks without disclos
 });
 
 // Synthetic S3 boundary tests; these do not prove Cloudflare connectivity.
-async function probeFixture(t, { publicRead = false, lostWriteResponse = false, foreignObject = false } = {}) {
+async function probeFixture(t, { publicRead = false, lostWriteResponse = false, foreignObject = false, anonymousError } = {}) {
   let object;
   const requests = [];
   const backend = createServer(async (req, res) => {
     requests.push({ method: req.method, url: req.url, authenticated: Boolean(req.headers.authorization) });
     assert.ok(req.url.startsWith(`/${r2Target.bucket}/_checks/luxsabers-social/`));
     const authenticated = Boolean(req.headers.authorization);
-    if (!authenticated) { res.writeHead(publicRead ? 200 : 403).end(); return; }
+    if (!authenticated) {
+      if (anonymousError) res.writeHead(400, { 'content-type': 'application/xml' }).end(`<Error><Code>InvalidArgument</Code><Message>${anonymousError}</Message></Error>`);
+      else res.writeHead(publicRead ? 200 : 403).end();
+      return;
+    }
     if (req.method === 'PUT') {
       assert.equal(req.headers['if-none-match'], '*');
       const chunks = [];
@@ -126,6 +130,16 @@ test('public object access fails verification and still cleans up the private pr
   assert.equal(result.anonymousDenied, false);
   assert.equal(result.cleanupVerified, true);
   assert.equal(object, undefined);
+});
+
+test('R2 missing-Authorization rejection passes without accepting unrelated 400 errors', async t => {
+  const rejected = await probeFixture(t, { anonymousError: 'Authorization' });
+  assert.equal(rejected.result.passed, true);
+  assert.equal(rejected.result.anonymousDenied, true);
+  assert.equal(rejected.requests.length, 7);
+  const malformed = await probeFixture(t, { anonymousError: 'MalformedRequest' });
+  assert.equal(malformed.result.passed, false);
+  assert.equal(malformed.result.cleanupVerified, true);
 });
 
 test('ambiguous upload is reconciled for cleanup without repeating the write', async t => {

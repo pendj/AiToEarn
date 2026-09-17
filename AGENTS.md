@@ -39,7 +39,7 @@ patch are deployed. Real zero-budget resume denial, idle paused queues with
 concurrency one, and automation-only restart with persistent pause pass.
 Desktop/mobile controls pass at 1440x1000 and 390x844; screenshots stay private.
 Models 003/018 pass source/image hashes and test-checkout checks from the server.
-No model/provider calls. Local tests: 36 Node and 18 Python tests pass.
+No model/provider calls. Local tests: 37 Node and 18 Python tests pass.
 `scripts/prepare-media.py` now prepares source-hash-matched private JPEGs without
 cropping, metadata or public upload. Both real Model 003/018 outputs and provenance
 sidecars are local under ignored `.runtime/prepared-media`; they are not public
@@ -65,15 +65,22 @@ through the existing Cloudflare MCP. Readback confirms Standard storage, default
 jurisdiction, automatic placement reported as WNAM, r2.dev disabled and no custom
 domains. No files were uploaded, credentials created or application settings
 changed. Do not create another bucket or infer public access/billable-use
-authority. Runtime bucket-scoped credentials, object access and AiToEarn storage
-integration remain pending. Subscription metadata remains permission-denied;
+authority. AiToEarn storage integration remains pending. Subscription metadata remains permission-denied;
 the existing MCP login works. Both account/user token permission-group endpoints
 return 9109; do not repeat login or seek a broad administrator credential.
 Local `scripts/configure-r2.py` accepts hidden S3 key input for this bucket only
-and preserves existing files; it has not been run with real keys.
+and preserves existing files; supplied S3 keys are now held in `.private/r2.json`
+(0600). The separately supplied API token was not used or stored.
 `scripts/verify-r2.mjs --check-config` is offline; its explicitly invoked
 `--private-roundtrip` uses one sub-1-KiB temporary object, at most seven requests,
-no SDK retry, anonymous denial and ownership-checked removal. No real R2 object
-request has occurred. Gateway region support and read-only R2 initialization are
+no SDK retry, anonymous denial and ownership-checked removal. Real R2 upload,
+metadata, exact download, anonymous rejection and cleanup pass. Unsigned R2 GET
+returns 400/InvalidArgument/Authorization; only that exact 400 is accepted, not
+arbitrary errors. Both probes were removed; private evidence remains. Current
+account metrics show zero stored bytes and minimal monthly operations; free
+allowances are not a hard billing cap. Gateway support and R2 initialization are
 local-only preparation; do not switch deployed storage before upload-signing
 host routing, old-object continuity, egress and real app checks are addressed.
+Integration will retain the local store, route signed uploads through the private
+gateway, and use a target-only CONNECT proxy for upstream S3 clients. Never enable
+general AI/server egress or public R2 access as a shortcut.

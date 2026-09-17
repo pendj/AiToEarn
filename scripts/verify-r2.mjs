@@ -4,6 +4,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { PutObjectCommand, HeadObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { parseXML } from '@aws-sdk/xml-builder';
 import { r2Target, validateR2Storage, storageClient } from '../gateway/storage.mjs';
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -43,8 +44,20 @@ export async function privateRoundtrip(client, endpoint, bucket = r2Target.bucke
     if (read.ContentLength !== Body.length) { read.Body?.destroy(); throw new Error('Probe size mismatch'); }
     if (hash(await read.Body.transformToByteArray()) !== hash(Body)) throw new Error('Probe bytes mismatch');
     result.downloaded = true;
-    const anonymous = await fetch(`${endpoint}/${bucket}/${Key}`, { method: 'HEAD', redirect: 'error', credentials: 'omit', signal: AbortSignal.timeout(15000) });
+    const anonymous = await fetch(`${endpoint}/${bucket}/${Key}`, { method: 'GET', redirect: 'error', credentials: 'omit', signal: AbortSignal.timeout(15000) });
     result.anonymousDenied = [401, 403].includes(anonymous.status);
+    // R2's unsigned S3 requests use this exact missing-authentication response.
+    if (anonymous.status === 400) {
+      const chunks = [];
+      let size = 0;
+      for await (const chunk of anonymous.body) {
+        size += chunk.length;
+        if (size > 4096) throw new Error('Unexpected anonymous response');
+        chunks.push(chunk);
+      }
+      const error = parseXML(Buffer.concat(chunks).toString('utf8')).Error;
+      result.anonymousDenied = error?.Code === 'InvalidArgument' && error?.Message === 'Authorization';
+    } else await anonymous.body?.cancel();
   } catch {
     // Provider payloads and signed headers are deliberately not persisted.
   } finally {

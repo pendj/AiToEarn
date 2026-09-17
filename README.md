@@ -81,9 +81,10 @@ and the default jurisdiction; automatic placement returned WNAM. Fresh metadata
 readback confirms r2.dev access is disabled and no custom domains are attached.
 This operation uploaded no objects and created no runtime credentials.
 
-AiToEarn still uses its existing private local object store. R2 integration
-requires credentials limited to this bucket, a scoped real upload/download
-check, cost controls, and an authorized platform-readable media access design.
+AiToEarn still uses its existing private local object store. Dedicated S3 keys
+are now stored privately, and real R2 upload, metadata, byte-identical download,
+anonymous rejection and temporary-object cleanup pass. Application integration,
+cost controls, and authorized platform-readable media access remain separate.
 Do not reuse MCP OAuth as an application storage credential or enable public
 bucket access implicitly. No service restart or application rollback is needed
 for this bucket-only change. If it is later abandoned, verify it is still empty
@@ -110,12 +111,17 @@ not actual permission scope or service access.
 After free allowance/cost authority is confirmed, an explicitly invoked
 `node scripts/verify-r2.mjs --private-roundtrip` performs at most seven requests
 with SDK retries disabled: one less-than-1-KiB random temporary object, metadata,
-exact download, anonymous HEAD denial, ownership-checked cleanup and absence
+exact download, anonymous GET denial, ownership-checked cleanup and absence
 check. It never lists other objects or migrates media. Private intent and result
 files remain under `.runtime/r2-checks`; an interrupted check's intent identifies
 the exact probe for recovery. Unknown ownership prevents deletion. A failed or
 ambiguous write is not automatically repeated. These calls still consume R2
-operations; the tool is not a billing cap. No real R2 object check has run yet.
+operations; the tool is not a billing cap. The first real check found that R2
+returns 400 with `InvalidArgument` / `Authorization` for unsigned requests. The
+checker now recognizes that exact response, while rejecting other 400 responses;
+the corrected real check passes. Both probes were removed. No application media
+has been migrated yet. Current account usage is well below the Standard free
+allowances, but those allowances are shared and are not a hard spending limit.
 
 The local gateway now honors the configured storage signing region. Its R2
 initializer performs only a bucket HEAD, never bucket creation, CORS, policy or

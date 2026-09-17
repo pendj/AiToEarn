@@ -162,10 +162,10 @@ These do not block independent installation and implementation work:
 - An applicable model connection and explicit permitted spend (currently zero).
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
-- Bucket-scoped R2 S3 keys (Object Read & Write on this bucket only), integration
-  and storage-cost authority; current MCP token-management discovery is denied.
-  `luxsabers-social-media` exists privately, but JPEG derivatives for Models
-  003/018 remain local and no cloud object access has been verified.
+- R2 application integration and sustained storage cost controls. Supplied S3
+  keys pass object write/read/delete on the dedicated private bucket; broader
+  credential scope is not independently proven. No runtime credential transfer
+  or application storage switch yet. Model 003/018 JPEGs remain local.
 
 ## OBS storage addition (2026-09-17)
 
@@ -218,6 +218,26 @@ These do not block independent installation and implementation work:
   and links unchanged until a real-service migration check passes. In particular,
   the pinned upstream signs its public endpoint host; R2 upload routing, existing
   object continuity and isolated server egress need verification before switching.
+
+## R2 integration slice
+
+- Preserve existing RustFS objects and exact configuration/image rollback.
+  Inventory only this project's bucket, copy bounded existing objects with exact
+  keys and verified bytes before activation, and do not delete local originals.
+- Keep both AiToEarn services internal-only. Their pinned Node 24.18 runtime
+  supports an explicit HTTPS agent proxy. Apply a hash-guarded S3-client patch
+  with one attempt and a target-only CONNECT proxy in the existing gateway;
+  no general proxy, TLS interception, or unrelated outbound access.
+- Sign native URLs for the real R2 host. Rewrite only the authenticated native
+  upload-sign response to the private upload listener, restoring the R2 Host
+  when forwarding. Preserve type/size/disk checks and short expiry. No direct
+  browser-to-R2 uploads or bucket CORS/public-domain changes.
+- Transfer only the dedicated storage credential, back up three affected private
+  configuration files, and retain all other settings/authorizations. Check real
+  app upload, confirmation, byte-identical private reads, old links, anonymous
+  denial, and desktop/mobile UI before calling integration complete. Constrain
+  initial media to private images, the existing 512 MiB account quota, and no
+  paid generation/video calls. Retain R2-only new objects during rollback.
 
 ## Work log
 
@@ -334,3 +354,14 @@ These do not block independent installation and implementation work:
   creation, media migration, model call or publication occurred. The live
   application remains release `814be0f`; cloud integration and overall goal
   remain incomplete.
+- 2026-09-17: Stored supplied S3 credentials with 0600 permissions in the ignored
+  private directory; did not store/use the separate API token. Account metrics
+  show zero stored bytes, and month-to-date operations contain only 18 bucket
+  lists, one bucket creation and one bucket HEAD before object verification.
+  Official Standard free allowances rechecked; these are not a spending cap.
+  First real probe uploaded/downloaded correctly but failed anonymous status
+  classification: R2 uses 400/InvalidArgument/Authorization, not 401/403.
+  A focused regression failed before the fix; only the exact authentication
+  rejection is now accepted. The corrected real roundtrip passes; both probes
+  were ownership-checked and removed. All 37 Node and 18 Python checks pass.
+  Private evidence stays in `.runtime/r2-checks`. No remote/app change yet.
