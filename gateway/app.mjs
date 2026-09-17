@@ -43,7 +43,7 @@ function loginPage(error = '') {
   return html(`<h1>LuxSabers Social</h1><h2>Sign in</h2>${error ? '<p role="alert">Sign-in failed.</p>' : ''}<form method="post" action="/session/login"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required maxlength="80"><label for="password">Password</label><input id="password" type="password" name="password" autocomplete="current-password" required maxlength="256"><button type="submit">Sign in</button></form>`);
 }
 
-export async function buildApp(config, { enableProxy = true, automation } = {}) {
+export async function buildApp(config, { enableProxy = true, automation, mediaBudget } = {}) {
   if (!Array.isArray(config.origins) || !config.origins.length) throw new Error('Missing trusted origins');
   if (config.sessionKey.length !== 64 || config.jwtSecret.length < 32) throw new Error('Invalid key configuration');
   const origins = new Set(config.origins);
@@ -138,9 +138,44 @@ export async function buildApp(config, { enableProxy = true, automation } = {}) 
   app.get('/session/clear.js', async (_, reply) => reply.type('text/javascript').send("localStorage.removeItem('User');location.replace('/session/login');"));
 
   if (enableProxy) {
-    const s3 = storageClient(config.storage);
+    const s3 = storageClient(config.storage, mediaBudget);
     app.addHook('onClose', async () => s3.destroy());
-    app.get('/oss/*', async (request, reply) => {
+    if (config.storage.provider === 'r2') {
+      app.post('/api/assets/uploadSign', async (request, reply) => {
+        const input = request.body;
+        if (input?.type !== 'userMedia' || !/\.(?:jpe?g|png|webp)$/i.test(input?.filename || '')
+          || !Number.isSafeInteger(input?.size) || input.size <= 0 || input.size > 50 * 1024 * 1024) {
+          return reply.code(400).send({ error: 'Only bounded product image uploads are enabled' });
+        }
+        if (!mediaBudget?.reserve(input.size)) return reply.code(507).send({ error: 'Private media allowance unavailable' });
+        const response = await fetch(`${config.serverOrigin}/assets/uploadSign`, {
+          method: 'POST', redirect: 'error', signal: AbortSignal.timeout(15000),
+          headers: { 'Content-Type': 'application/json', authorization: `Bearer ${request.upstreamToken}` },
+          body: JSON.stringify(input),
+        });
+        const chunks = [];
+        let size = 0;
+        for await (const chunk of response.body) {
+          size += chunk.length;
+          if (size > 16384) throw new Error('Unexpected signing response');
+          chunks.push(chunk);
+        }
+        const result = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        if (!response.ok || result.code !== 0) return reply.code(502).send({ error: 'Upload signing unavailable' });
+        const data = result.data;
+        const signed = new URL(data?.uploadUrl);
+        const expectedPath = `/${config.storage.bucket}/${data?.path}`;
+        const expires = Number(signed.searchParams.get('X-Amz-Expires'));
+        if (signed.origin !== config.storage.endpoint || signed.username || signed.password || signed.hash
+          || signed.pathname !== expectedPath || !data.path.startsWith(`${config.operatorId}/user/media/`)
+          || !/^[a-f0-9]{64}$/.test(signed.searchParams.get('X-Amz-Signature') || '')
+          || !/^[a-f0-9]{24}$/.test(data.id || '')
+          || !Number.isSafeInteger(expires) || expires > 300 || expires <= 0) return reply.code(502).send({ error: 'Unexpected signing target' });
+        data.uploadUrl = `${config.uploadOrigin || 'http://127.0.0.1:19000'}${signed.pathname}${signed.search}`;
+        return reply.send(result);
+      });
+    }
+    app.get('/oss/*', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, async (request, reply) => {
       try {
         const key = request.safePath.slice('/oss/'.length);
         if (!key) return reply.code(404).send({ error: 'Asset not found' });

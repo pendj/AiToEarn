@@ -1,9 +1,28 @@
 import json
 from pathlib import Path
 import unittest
+import os
+import shutil
+import subprocess
+import tempfile
+import importlib.util
 
 
 class PinTests(unittest.TestCase):
+    def test_compose_renders_with_isolated_generated_configuration(self):
+        root = Path(__file__).resolve().parents[1]
+        spec = importlib.util.spec_from_file_location('compose_provision', root / 'scripts/provision.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(prefix='social-compose-') as directory:
+            target = Path(directory)
+            shutil.copy2(root / 'compose.yaml', target / 'compose.yaml')
+            module.create_config(target, check_resources=False)
+            pins = json.loads((root / 'images.lock.json').read_text())['images']
+            environment = {**os.environ, **pins, 'RELEASE_ID': '0' * 40, 'DEPLOY_UID': str(os.getuid()), 'DEPLOY_GID': str(os.getgid())}
+            result = subprocess.run(['docker', 'compose', 'config', '--quiet'], cwd=target, env=environment, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_all_runtime_base_images_are_arm64_digest_pinned(self):
         root = Path(__file__).resolve().parents[1]
         lock = json.loads((root / "images.lock.json").read_text())

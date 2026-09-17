@@ -9,6 +9,8 @@ import { automationControl } from '../automation/control.mjs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { r2Target } from '../gateway/storage.mjs';
+import { MediaBudget } from '../gateway/media-budget.mjs';
 
 const password = 'test-only-password-not-for-deployment';
 const salt = randomBytes(16);
@@ -141,6 +143,47 @@ test('private storage downloads honor the configured signing region without leak
   assert.match(authorization, /\/auto\/s3\/aws4_request/);
   assert.ok(!JSON.stringify(response.headers).includes('AWS4-HMAC-SHA256'));
   assert.equal((await app.inject({ url: '/oss/private.jpg', headers })).statusCode, 401);
+});
+
+test('R2 upload signing stays authenticated and rewrites only the correct private object URL', async t => {
+  const storage = { ...r2Target, accessKey: 'a'.repeat(32), secretKey: 'b'.repeat(64) };
+  const path = `${config.operatorId}/user/media/202609/image.jpg`;
+  const signed = new URL(`${storage.endpoint}/${storage.bucket}/${path}`);
+  signed.searchParams.set('X-Amz-Signature', 'c'.repeat(64));
+  signed.searchParams.set('X-Amz-Expires', '300');
+  let returnedUrl = signed.href;
+  let calls = 0;
+  const backend = createServer(async (req, res) => {
+    calls++;
+    assert.equal(req.method, 'POST');
+    assert.equal(req.url, '/assets/uploadSign');
+    assert.equal(req.headers.cookie, undefined);
+    assert.ok(req.headers.authorization.startsWith('Bearer '));
+    res.setHeader('content-type', 'application/json');
+    res.end(JSON.stringify({ code: 0, data: { id: '1'.repeat(24), path, url: `${config.origins[0]}/oss/${path}`, uploadUrl: returnedUrl } }));
+  });
+  await new Promise(resolve => backend.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => backend.close(resolve)));
+  const upstream = `http://127.0.0.1:${backend.address().port}`;
+  const mediaBudget = new MediaBudget(':memory:');
+  t.after(() => mediaBudget.close());
+  const app = await buildApp({ ...config, storage, serverOrigin: upstream, aiOrigin: upstream, webOrigin: upstream }, { mediaBudget });
+  t.after(() => app.close());
+  const payload = { filename: 'image.jpg', type: 'userMedia', size: 10 };
+  assert.equal((await app.inject({ method: 'POST', url: '/api/assets/uploadSign', headers, payload })).statusCode, 401);
+  assert.equal(calls, 0);
+  const cookie = await login(app);
+  const request = () => app.inject({ method: 'POST', url: '/api/assets/uploadSign', headers: { ...headers, cookie }, payload });
+  const result = await request();
+  assert.equal(result.statusCode, 200);
+  const rewritten = new URL(result.json().data.uploadUrl);
+  assert.equal(rewritten.origin, 'http://127.0.0.1:19000');
+  assert.equal(rewritten.pathname, signed.pathname);
+  assert.equal(rewritten.search, signed.search);
+  returnedUrl = signed.href.replace(storage.endpoint, 'https://other.example');
+  assert.equal((await request()).statusCode, 502);
+  returnedUrl = signed.href.replace('/user/media/', '/user/files/');
+  assert.equal((await request()).statusCode, 502);
 });
 
 test('private automation controls keep zero-budget resume blocked and persist a real pause', async t => {

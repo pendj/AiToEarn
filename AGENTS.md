@@ -39,7 +39,8 @@ patch are deployed. Real zero-budget resume denial, idle paused queues with
 concurrency one, and automation-only restart with persistent pause pass.
 Desktop/mobile controls pass at 1440x1000 and 390x844; screenshots stay private.
 Models 003/018 pass source/image hashes and test-checkout checks from the server.
-No model/provider calls. Local tests: 37 Node and 18 Python tests pass.
+No model/provider calls. R2 application preparation now passes 46 Node and 21
+Python tests, including isolated Compose rendering; it is not deployed yet.
 `scripts/prepare-media.py` now prepares source-hash-matched private JPEGs without
 cropping, metadata or public upload. Both real Model 003/018 outputs and provenance
 sidecars are local under ignored `.runtime/prepared-media`; they are not public
@@ -84,3 +85,14 @@ host routing, old-object continuity, egress and real app checks are addressed.
 Integration will retain the local store, route signed uploads through the private
 gateway, and use a target-only CONNECT proxy for upstream S3 clients. Never enable
 general AI/server egress or public R2 access as a shortcut.
+User requires the complete R2 Standard free envelope: 10 GB total storage, 1M
+Class A and 10M Class B operations/month. Local implementation reserves 100 MB
+and 10,000 operations/class for headroom, counts requests over rolling 32 days,
+and keeps byte/operation reservations across restarts. Stored space never resets
+monthly; failed reservations stay counted. This does not cap unrelated account
+usage or direct requests outside the application. No billing guarantee is made.
+R2 migration tools copy only the reviewed local image paths, preserve originals,
+and retain hash-guarded three-file activation/rollback records. Current read-only
+remote inventory: one 16,804-byte image. Remote AI/server S3 module hashes match
+the reviewed patch. All actual app/R2, ARM build and post-switch checks remain
+pending. Do not confuse direct probe success with a completed app migration.

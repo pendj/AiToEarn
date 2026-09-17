@@ -1,4 +1,5 @@
 import { S3Client } from '@aws-sdk/client-s3';
+import { operationClass } from '../server/r2-policy.cjs';
 
 export const r2Target = Object.freeze({
   provider: 'r2',
@@ -24,4 +25,11 @@ export function storageOptions(storage) {
   };
 }
 
-export const storageClient = storage => new S3Client(storageOptions(storage));
+export function storageClient(storage, mediaBudget) {
+  const client = new S3Client(storageOptions(storage));
+  if (storage.provider === 'r2' && mediaBudget) client.middlewareStack.add((next, context) => async args => {
+    if (!mediaBudget.reserveOperation(operationClass(context.commandName))) throw new Error('R2 free request allowance unavailable');
+    return next(args);
+  }, { step: 'finalizeRequest', name: 'r2FreeAllowance', priority: 'high' });
+  return client;
+}

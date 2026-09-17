@@ -37,6 +37,9 @@ test('only bounded signed image requests reach the storage service with original
   assert.equal((await app.inject({ method: 'PUT', url, headers: { ...headers, 'content-type': 'video/mp4' }, payload: 'data' })).statusCode, 415);
   assert.equal((await app.inject({ method: 'PUT', url, headers: { ...headers, 'content-type': 'image/png', 'content-length': String(51 * 1024 * 1024) }, payload: 'data' })).statusCode, 413);
   assert.equal(calls, 0);
-  assert.equal((await app.inject({ method: 'PUT', url, headers: { ...headers, 'content-type': 'image/png', cookie: 'private-session', authorization: 'ignored' }, payload: 'data' })).statusCode, 200);
+  const uploaded = await app.inject({ method: 'PUT', url, headers: { ...headers, 'content-type': 'image/png', cookie: 'private-session', authorization: 'ignored' }, payload: 'data' });
+  assert.equal(uploaded.statusCode, 200);
+  assert.equal(uploaded.headers['access-control-allow-origin'], headers.origin);
+  assert.equal(uploaded.headers['access-control-expose-headers'], 'ETag');
   assert.equal(calls, 1);
 });

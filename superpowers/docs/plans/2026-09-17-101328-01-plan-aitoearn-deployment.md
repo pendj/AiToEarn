@@ -224,7 +224,7 @@ These do not block independent installation and implementation work:
 - Preserve existing RustFS objects and exact configuration/image rollback.
   Inventory only this project's bucket, copy bounded existing objects with exact
   keys and verified bytes before activation, and do not delete local originals.
-- Keep both AiToEarn services internal-only. Their pinned Node 24.18 runtime
+- Keep both AiToEarn services internal-only. Their pinned Node 24.17/24.18 runtimes
   supports an explicit HTTPS agent proxy. Apply a hash-guarded S3-client patch
   with one attempt and a target-only CONNECT proxy in the existing gateway;
   no general proxy, TLS interception, or unrelated outbound access.
@@ -236,8 +236,18 @@ These do not block independent installation and implementation work:
   configuration files, and retain all other settings/authorizations. Check real
   app upload, confirmation, byte-identical private reads, old links, anonymous
   denial, and desktop/mobile UI before calling integration complete. Constrain
-  initial media to private images, the existing 512 MiB account quota, and no
-  paid generation/video calls. Retain R2-only new objects during rollback.
+  initial media to private images. User now explicitly requires the R2 Standard
+  free envelope: 10 GB total storage (not 10 GB new each month), 1M Class A and
+  10M Class B monthly requests. Upstream does not enforce its stored operator
+  quota; use a persistent shared gateway ledger, at most 32 upload intents/day,
+  counting failures until deliberate reconciliation. Keep 100 MB of the storage
+  envelope reserved as headroom; upload reservations stop at 9.9 GB. Apply request limits
+  over a conservative rolling 32-day window, reserving 10,000 operations of each
+  class for pre-integration/tooling usage. Native S3 calls authenticate quota
+  reservation before network access; unknown operations or quota-service failure
+  stop access. No paid generation/video calls. Retain
+  R2-only new objects and the quota ledger during rollback. These local limits
+  do not cap account-wide Cloudflare billing from other credentials/services.
 
 ## Work log
 
@@ -365,3 +375,16 @@ These do not block independent installation and implementation work:
   rejection is now accepted. The corrected real roundtrip passes; both probes
   were ownership-checked and removed. All 37 Node and 18 Python checks pass.
   Private evidence stays in `.runtime/r2-checks`. No remote/app change yet.
+- 2026-09-17: Implemented private R2 upload routing, target-only TLS egress,
+  hash-guarded native S3 transports, bounded verified image copy, and exact
+  three-config activation/rollback. Remote read-only inventory is one 16,804-byte
+  image; both native S3 compiled hashes match. User expanded storage requirements
+  to the R2 Standard free envelope. Added 9.9 GB effective upload reservation cap
+  beneath 10 GB, plus shared Class A/B reservations with 10,000-request headroom
+  and a rolling 32-day window. Failed operations remain counted. Native quota
+  reservations are authenticated; missing quota service fails closed. No general
+  server/AI egress, public bucket, model calls or posting. Local checks: 46 Node,
+  21 Python and syntax. A raw local Compose check initially lacked private
+  runtime env files; isolated generated configuration now renders successfully.
+  These checks are not ARM deployment or real app/R2 evidence; remote remains
+  `814be0f` pending the scoped rollout.

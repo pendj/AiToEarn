@@ -33,7 +33,7 @@ post. The existing unrelated business containers were not recreated or restarted
 
 ## Local verification
 
-Requires Node.js 22+, npm, Python 3 with Pillow, and Docker Compose for
+Requires Node.js 22.21+ or 24.5+, npm, Python 3 with Pillow, and Docker Compose for
 configuration checks. Media conversion is tested with the host's Pillow 10.2.0;
 each prepared image records the encoder version. Pillow is local tooling, not
 a new deployed application service.
@@ -129,6 +129,56 @@ lifecycle writes. This is preparation, not a completed application migration:
 signed-upload host routing, old-object continuity, server egress and actual
 desktop/mobile upload/download must pass before replacing the deployed config.
 
+### Private R2 migration
+
+The integration uses native S3 signing for the real R2 host, a private upload
+proxy with CORS/type/size checks, and a target-only TLS CONNECT listener on
+gateway port 8082 (no host/public port). The native server and AI retain their
+internal-only networks. Both compiled S3 modules are hash-checked before adding
+the explicit HTTPS proxy agent; non-R2 configuration remains unchanged.
+
+R2 upload intents reserve bytes in `/data/media.sqlite` before signing. The
+initial private allowance is 10 GB (10,000,000,000 bytes), including migrated
+images, with a 100 MB safety reserve: new uploads stop at 9.9 GB reserved bytes.
+At most 32 intents/day are enabled. Stored bytes do not reset each month.
+The Standard free request limits are 1,000,000 Class A and 10,000,000 Class B;
+the shared persistent ledger stops 10,000 operations short of each limit, using
+a conservative rolling 32-day window across billing boundaries. Gateway reads,
+signed upload requests and native S3 calls reserve quota before remote access.
+The native reservation RPC is authenticated and private. Unknown operation types
+or an unavailable quota service fail closed. Failed intents/calls stay reserved
+until deliberate reconciliation;
+do not remove the ledger to reset usage. This is an application limit, not an
+account-wide Cloudflare billing cap. Video upload and public media remain off.
+
+For the existing installation, after building the reviewed gateway/server/AI
+images, securely transfer only `.private/r2.json` with mode 0600. Never print it.
+Preserve the previous `.env` and source revision. Stop only `gateway server ai`
+to freeze image writes, then copy the reviewed source images without deleting
+the originals or overwriting any conflicting R2 object:
+
+```sh
+docker compose stop gateway server ai
+docker compose run --rm --no-deps -v /srv/luxsabers-social/scripts:/app/scripts:ro -v /srv/luxsabers-social/.private:/migration/.private:ro -v /srv/luxsabers-social/.runtime/r2-migration:/migration/.runtime/r2-migration gateway node scripts/migrate-r2.mjs --copy /migration
+python3 scripts/activate-r2.py
+docker compose config --quiet
+docker compose up -d --no-deps --wait --wait-timeout 180 gateway ai server
+```
+
+Private `.runtime/r2-migration/copy.json` records exact keys, byte hashes and
+source/configuration identity; `activation.json` and `original-config/` preserve
+only the three affected configurations. Run real HTTP and browser verification,
+including original `/oss/` links, a new upload, confirmation and exact R2 bytes.
+Do not call migration complete before those checks pass.
+
+Rollback storage configuration with `python3 scripts/activate-r2.py --rollback`
+while the three affected services are stopped. It refuses later-edited configs.
+Restore the prior source revision and matching retained `.env`, validate Compose,
+then restart only `gateway ai server` with `--no-build --no-deps`. Local originals
+and all R2 objects remain untouched. New R2-only images remain recoverable in R2
+but are not visible through the original local-storage app until reactivation or
+an explicitly verified reverse copy. Preserve the media allowance ledger too.
+
 ## Deployment
 
 Target: `ubuntu@163.192.46.78`; deployment directory `/srv/luxsabers-social`.
@@ -141,8 +191,8 @@ python3 scripts/provision.py
 python3 scripts/provision-automation.py
 python3 scripts/prepare-release.py --release <verified-commit>
 docker compose config --quiet
-docker compose build gateway server
-docker compose pull mongodb redis storage ai web
+docker compose build gateway server ai
+docker compose pull mongodb redis storage web
 docker compose up -d
 docker compose ps
 ```
@@ -220,7 +270,7 @@ python3 scripts/verify-http.py
   their IDs/start times and health.
 - Resource stop: do not deploy below 12 GiB free disk. Pause new content/upload
   jobs below 10 GiB free disk. No local model inference or video generation.
-  Operator asset allowance starts at 512 MiB; per-file limit is 50 MiB. Logs are
+  R2 private media allowance is capped at 10 GB total; per-file limit is 50 MiB. Logs are
   capped at 2 x 5 MiB per service. Incomplete multipart uploads expire after
   seven days; confirmed user assets are retained until deliberate removal.
 - Emergency isolation: from this exact project directory, `docker compose stop`

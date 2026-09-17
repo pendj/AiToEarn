@@ -77,6 +77,7 @@ services:
 
   storage-init:
     <<: *common
+    networks: [internal, entry]
     image: luxsabers-social-gateway:${RELEASE_ID:?Release identifier required}
     restart: 'no'
     user: '${DEPLOY_UID:?}:${DEPLOY_GID:?}'
@@ -88,7 +89,11 @@ services:
 
   ai:
     <<: *common
-    image: ${AI_IMAGE:?Pinned image required}
+    image: luxsabers-social-ai:${RELEASE_ID:?Release identifier required}
+    build:
+      context: .
+      dockerfile: ai/Dockerfile
+      args: {AI_IMAGE: '${AI_IMAGE:?Pinned image required}'}
     user: '${DEPLOY_UID:?}:${DEPLOY_GID:?}'
     command: [node, apps/aitoearn-ai/src/main.js, -c, config.yaml]
     tmpfs: ['/app/.claude-session:size=32m,uid=${DEPLOY_UID:?},gid=${DEPLOY_GID:?},mode=0700']
