@@ -73,6 +73,9 @@ No unrelated business service, data, pricing, policy, or payment state may chang
 - Status: real model generation pending; paid calls remain disabled. Both
   registered product photos have source-matched private JPEG derivatives and
   provenance records; no public image URL or provider media acceptance yet.
+  A user-designated Codex channel is now imported and credential-validated in
+  existing ccload on `147.224.48.149`; AiToEarn integration and generation are
+  still unverified. This is not an API billing or publishing authorization.
 - Work: reuse authorized product photos and verified current public product
   facts, retain source/configuration provenance and freshness, and use an
   explicitly authorized model connection. Start with text and existing images.
@@ -162,6 +165,8 @@ These do not block independent installation and implementation work:
 
 - A designated owned Facebook/Instagram/Pinterest account and its authorization.
 - An applicable model connection and explicit permitted spend (currently zero).
+  Reuse the designated ccload candidate; do not rediscover accounts or treat its
+  successful import as proof of AiToEarn connectivity or unlimited free usage.
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
 - Platform-readable media and actual provider acceptance after account selection.
@@ -418,3 +423,16 @@ These do not block independent installation and implementation work:
   Post-restart desktop/mobile readback and native confirmation passed without
   another upload. Added a reusable guarded browser check; syntax and all 21
   Python checks pass, with the unchanged 46 Node-test evidence retained.
+- 2026-09-17: On explicit user authorization, located existing ccload on
+  `147.224.48.149` (not `163.192.46.78`), upgraded it and local `/root/ccload` to
+  pinned `v4.10.11-beta.6`. Verified private SQLite backups before changes and
+  retained old images/configuration; exact rollback locations are in README.
+  Remote initially failed its legacy HEAD health probe despite a working GET;
+  the upstream GET probe fixes it. Both final Docker/HTTP health and database
+  integrity pass. Remote received exactly one designated channel through native
+  import and upstream credential validation; existing channels/tokens retained.
+  Local retains 614 channels/2 access tokens/7 API keys/6,099 model entries.
+  Environment files and unrelated container IDs are unchanged. No credentials
+  were logged or committed, and the temporary import script was removed. No
+  model-generation call, AiToEarn configuration change, social connection,
+  publication, paid resource or Git push occurred.

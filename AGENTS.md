@@ -10,6 +10,10 @@ Temu, community, AR, or mobile projects as part of this goal.
 - Only this project's containers, files, networks, volumes, and optional
   `social.luxsabers.com` records are in write scope. Never prune Docker resources
   or restart unrelated services.
+- Explicit maintenance exception, 2026-09-17: the user authorized upgrading the
+  existing `ccload` service at `/home/ubuntu/ccload` on `147.224.48.149`, importing
+  only the designated local Codex channel, and upgrading local `/root/ccload`.
+  This does not authorize other services, new public exposure or paid model use.
 - No paid API calls, purchases, social connections, or public posts without the
   corresponding explicit authorization. Current budget is zero. Workers must
   default to paused and public publishing must fail closed.
@@ -91,3 +95,14 @@ hash-guarded originals under `.runtime/r2-migration/original-config`. Follow the
 README; keep all R2 objects and quota state. R2-only new images are not visible
 through the old local-store app during rollback. No actual storage rollback,
 model generation, platform authorization or public publication is claimed.
+
+Model gateway checkpoint: ccload is on `147.224.48.149`, not the social host.
+Remote and local ccload now run pinned `v4.10.11-beta.6` (prerelease), healthy
+with valid SQLite databases. Remote has 3 channels/1 API access token after one
+designated Codex Pro credential import; local retains 614 channels/2 access
+tokens. The import's upstream credential validation passed; no generation call
+was made. The local account was retained, not moved or disabled. AiToEarn has
+not been connected to this gateway, and its egress/pause/budget settings remain
+unchanged. Exact backups and rollback boundaries are in README's model gateway
+section. Reuse the recorded SSH host identity and the key in the user's existing
+`D:\Documents\private\Oracle\147.224.48.149` directory; never print the key.
