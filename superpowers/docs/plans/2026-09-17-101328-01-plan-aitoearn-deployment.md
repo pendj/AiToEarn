@@ -68,7 +68,9 @@ No unrelated business service, data, pricing, policy, or payment state may chang
 
 ## Outcome 3: Real source-backed English content generation
 
-- Status: pending; paid calls remain disabled.
+- Status: real model generation pending; paid calls remain disabled. Both
+  registered product photos have source-matched private JPEG derivatives and
+  provenance records; no public image URL or provider media acceptance yet.
 - Work: reuse authorized product photos and verified current public product
   facts, retain source/configuration provenance and freshness, and use an
   explicitly authorized model connection. Start with text and existing images.
@@ -161,7 +163,7 @@ These do not block independent installation and implementation work:
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
 - The R2 bucket name/page, applicable runtime access and storage-cost authority;
-  approved platform-readable JPEG derivatives are not yet published.
+  JPEG derivatives for Models 003/018 are prepared privately, not publicly hosted.
 
 ## OBS storage addition (2026-09-17)
 
@@ -291,3 +293,12 @@ These do not block independent installation and implementation work:
   gateway ports exposed. Eight unrelated container IDs are unchanged; 23 GiB disk
   and 9,222 MiB RAM remain available. R2 metadata read is now allowed, but its
   current bucket list is empty; there are still no cloud-storage writes.
+- 2026-09-17: Added local, registered-source-only JPEG preparation. Five focused
+  tests cover complete-frame retention, source hash rejection, private modes,
+  no-overwrite replay, symlink denial and EXIF orientation/metadata removal.
+  The initial checks failed because the preparation tool was absent; all now
+  pass. Real Model 003/018 photos produce nonblank 1080x1080 JPEGs of 56,898 and
+  86,102 bytes, with matching source/output hashes in private sidecars. Neither
+  source files nor publishing authority changed. Local Python checks now total
+  15; deployed application remains `814be0f`. No upload, provider call or public
+  media availability is claimed.

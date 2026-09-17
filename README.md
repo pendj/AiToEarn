@@ -33,7 +33,10 @@ post. The existing unrelated business containers were not recreated or restarted
 
 ## Local verification
 
-Requires Node.js 22+, npm, Python 3, and Docker Compose for configuration checks.
+Requires Node.js 22+, npm, Python 3 with Pillow, and Docker Compose for
+configuration checks. Media conversion is tested with the host's Pillow 10.2.0;
+each prepared image records the encoder version. Pillow is local tooling, not
+a new deployed application service.
 
 ```sh
 npm ci
@@ -45,6 +48,30 @@ Unit tests use synthetic credentials and a local test HTTP server. They prove
 gateway behavior, not real AI connectivity, social account access, or publishing.
 Do not print rendered Compose configuration after secret provisioning; use
 `docker compose config --quiet` instead.
+
+## Private publishing media
+
+Registered product photos can be prepared locally before platform/storage
+authorization. This tool uses only source-hash-matched images from
+`automation/sources.json`; it reuses the private asset cache when available.
+
+```sh
+python3 scripts/prepare-media.py --source model-003-exterior
+python3 scripts/prepare-media.py --source model-018-exterior
+```
+
+JPEG files and provenance sidecars stay in ignored `.runtime/prepared-media/`
+(directory 0700, files 0600). Output is 1080x1080, retains the complete image
+without cropping or enlarging it, uses white padding when needed, and removes
+EXIF metadata. Unsupported color profiles stop for review rather than silently
+changing the product colors. Existing differing outputs are never overwritten.
+The original image and source records are unchanged. The sidecar contains both
+original and output SHA-256 hashes; it is not a publishing grant.
+
+Models 003/018 have real prepared private JPEGs (56,898 and 86,102 bytes).
+Nothing is uploaded to OBS/R2 or published by this command. Platform-readable
+URLs, actual provider acceptance and source freshness at send time are separate
+checks required before publishing.
 
 ## Deployment
 

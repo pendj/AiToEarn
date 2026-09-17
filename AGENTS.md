@@ -39,7 +39,11 @@ patch are deployed. Real zero-budget resume denial, idle paused queues with
 concurrency one, and automation-only restart with persistent pause pass.
 Desktop/mobile controls pass at 1440x1000 and 390x844; screenshots stay private.
 Models 003/018 pass source/image hashes and test-checkout checks from the server.
-No model/provider calls. Local tests: 27 Node and ten Python tests pass.
+No model/provider calls. Local tests: 27 Node and 15 Python tests pass.
+`scripts/prepare-media.py` now prepares source-hash-matched private JPEGs without
+cropping, metadata or public upload. Both real Model 003/018 outputs and provenance
+sidecars are local under ignored `.runtime/prepared-media`; they are not public
+publishing assets yet. This local-tooling change does not alter deployed images.
 Pre-upgrade cold snapshot
 `20260917T121131Z-4433cc9` passed four isolated volume byte comparisons and
 restored MongoDB/Redis startup. Restore-test copies were removed; backup retained.
