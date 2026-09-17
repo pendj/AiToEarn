@@ -50,6 +50,19 @@ status, html, _ = request('/en')
 assert status == 200 and b'<html' in html.lower(), 'Real frontend failed'
 for secret in [config['jwtSecret'], config['sessionKey'], password]:
     assert secret.encode() not in html, 'Secret present in frontend HTML'
+if config.get('automation'):
+    status, body, _ = request('/session/automation.json')
+    assert status == 200, 'Private automation status failed'
+    automation = json.loads(body)
+    assert automation['control']['paused'] == 1, 'Initial automation must remain paused'
+    assert automation['control']['heartbeat'], 'Worker heartbeat missing'
+    assert automation['modelBlock'] and automation['publishingBlock'], 'Missing grants must be visible'
+    assert automation['dailyBudgetMicrousd'] == 0, 'Unexpected approved spend'
+    assert request('/session/automation/resume', {})[0] == 409, 'Zero-budget unauthorized resume must fail'
+    assert request('/session/automation/pause', {})[0] == 200, 'Real pause failed'
+    status, body, _ = request('/session/automation.json')
+    assert status == 200 and json.loads(body)['control']['paused'] == 1, 'Pause did not persist'
+    print('PASS: real private automation heartbeat, zero-budget resume denial and durable pause.')
 if args.asset:
     asset = args.asset.resolve()
     assert asset.is_relative_to(root / '.runtime/assets'), 'Use only project-local staged assets'
