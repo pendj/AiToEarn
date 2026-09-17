@@ -1,0 +1,8 @@
+.private/
+.runtime/
+.env
+node_modules/
+coverage/
+*.log
+__pycache__/
+.env.pending

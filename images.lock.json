@@ -1,0 +1,24 @@
+{
+  "verifiedAt": "2026-09-17",
+  "architecture": "linux/arm64",
+  "upstreamSource": "8bbf520cd56807ba30712fca415bc774b8038cb6",
+  "notes": "Web/server share source 8bbf520. AI image e3abc458 precedes it; GitHub comparison contains no changes to AI or backend shared libraries. Runtime compatibility still requires deployment verification.",
+  "images": {
+    "WEB_IMAGE": "aitoearn/aitoearn-web@sha256:416007e5908b4a173774812ae86a4640e2bf542895bab7ed0045b1d947e92f04",
+    "SERVER_IMAGE": "aitoearn/aitoearn-server@sha256:cd3cae0e4460523ef1b73363a352f43e2f5fdf7d192183f89d2e67c7caa93c1a",
+    "AI_IMAGE": "aitoearn/aitoearn-ai@sha256:cfe345a9888e1e4cca87c4ca6e8ee8c819e83cc10d25abb762b52b104b1e0b26",
+    "MONGO_IMAGE": "mongo@sha256:9535c3627cc8c14b2768c7fd825dcd52c3247ba39f96d1cc5c129948d5fd5028",
+    "REDIS_IMAGE": "redis@sha256:f8d15882ba108587477ce13c00ab0551933a84138427b7cc9abadfbe45ffd973",
+    "STORAGE_IMAGE": "rustfs/rustfs@sha256:42edb61d588775f9431ff436216d14392d2234d4eb2ed68321569fbf7245b36b",
+    "NODE_IMAGE": "node@sha256:1ef15d33d74602021f35ec64a4e72f4a21e2cfa68ebecd125fbe0c44af8f604a"
+  },
+  "sourceTags": {
+    "WEB_IMAGE": "20260626-8bbf520",
+    "SERVER_IMAGE": "20260626-8bbf520c",
+    "AI_IMAGE": "20260623-e3abc458",
+    "MONGO_IMAGE": "8.0",
+    "REDIS_IMAGE": "7.4-alpine",
+    "STORAGE_IMAGE": "latest (resolved once; digest is authoritative)",
+    "NODE_IMAGE": "22-alpine"
+  }
+}
