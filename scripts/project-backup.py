@@ -55,6 +55,7 @@ def volume_tool(image, volume, args, *, readonly=True, stdout=subprocess.PIPE, s
     mount = f'type=volume,source={volume},target=/volume' + (',readonly' if readonly else '')
     return run(['docker', 'run', '--rm', '--network', 'none', '--read-only', '--cpus', '0.25',
                 '--memory', '192m', '--security-opt', 'no-new-privileges:true',
+                *(['--interactive'] if stdin is not None else []),
                 '--mount', mount, '--entrypoint', 'tar', image, *args], stdout=stdout, stdin=stdin)
 
 
