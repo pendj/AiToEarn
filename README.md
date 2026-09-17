@@ -341,9 +341,11 @@ not restore any grant or enable publishing implicitly.
 ## Model gateway candidate
 
 On 2026-09-17, the user separately authorized maintenance of existing ccload
-deployments. Both now run `ghcr.io/caidaoli/ccload:v4.10.11-beta.6` (prerelease),
-pinned to manifest digest
+deployments. Remote runs `ghcr.io/caidaoli/ccload:v4.10.11-beta.6`, pinned to
 `sha256:fbe81b27c813387b3f015a7e64821f22ab4cde0d246d9f39d740c1a3223bc3d9`.
+Local subsequently moved to `ghcr.io/caidaoli/ccload:v4.10.11-beta.7`, pinned to
+`sha256:d7e89be275a3eb6aa816aa295df1a49888f5d223c083a39b4c916ec3b135ce4e`.
+Both are prereleases; beta.7 was the latest release at the local upgrade check.
 
 - Remote: `ubuntu@147.224.48.149`, `/home/ubuntu/ccload`, existing loopback API
   `127.0.0.1:18080`; not the AiToEarn server. Upgraded from `v4.6.21-beta.1`.
@@ -351,16 +353,27 @@ pinned to manifest digest
   over SSH, with upstream credential validation. Total: 3 channels, 1 access
   token, 1 API key and 27 model entries. No model-generation call was made.
 - Local: `/root/ccload`, UI `http://127.0.0.1:8080/web/`. Upgraded from
-  `v4.10.10-beta.3`; retains 614 channels, 2 access tokens, 7 API keys and 6,099
-  model entries. Local account and environment configuration are unchanged.
+  `v4.10.10-beta.3` through beta.6 to beta.7; retains 614 channels, 2 access tokens,
+  7 API keys and 6,099 model entries. Local account and environment configuration
+  are unchanged. The beta.7 change modifies only the Compose image reference.
 - Both services pass HTTP/Docker health and SQLite integrity/foreign-key checks.
   Other container IDs are unchanged. Remote's legacy HEAD health probe was
   replaced with the upstream GET probe; no ports, proxy or environment changed.
+- Local beta.7 verification: Docker healthy with zero restarts; health and web
+  HTTP 200; anonymous admin and model APIs HTTP 401; SQLite integrity and foreign
+  keys pass. Fourteen other running container IDs are unchanged. One startup
+  model-catalog fetch logged an upstream connection reset; existing model
+  entries remain intact. No model-generation request was used for verification.
 
 Protected online SQLite backups also contain the original Compose and environment:
 
 - Remote: `/home/ubuntu/ccload/backups/pre-v4.10.11-beta.6-lmdFlchB`.
-- Local: `/root/ccload/data/backups/pre-v4.10.11-beta.6-TddqPJWG`.
+- Local beta.7 rollback to beta.6:
+  `/root/ccload/data/backups/pre-v4.10.11-beta.7-k4dQH8ZE`.
+  The retained beta.6 runtime image is
+  `sha256:d3da99428b4e5c3b091568db52bc1024f109c5200f6dc4ca0b6a1ebce3758f8f`.
+- Earlier local rollback to `v4.10.10-beta.3`:
+  `/root/ccload/data/backups/pre-v4.10.11-beta.6-TddqPJWG`.
 
 Old images are retained. For an authorized rollback, first make a fresh online
 SQLite backup in a new protected directory, then stop only `ccload` using that

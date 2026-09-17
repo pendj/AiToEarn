@@ -436,3 +436,16 @@ These do not block independent installation and implementation work:
   were logged or committed, and the temporary import script was removed. No
   model-generation call, AiToEarn configuration change, social connection,
   publication, paid resource or Git push occurred.
+- 2026-09-18 (Asia/Shanghai): The local upgrade check found newly released
+  `v4.10.11-beta.7` (prerelease). Created and integrity-checked protected online
+  backup `/root/ccload/data/backups/pre-v4.10.11-beta.7-k4dQH8ZE`, retained the
+  beta.6 image, and changed only local Compose's image reference to manifest
+  `sha256:d7e89be275a3eb6aa816aa295df1a49888f5d223c083a39b4c916ec3b135ce4e`.
+  The first comparison command had a delimiter error; the corrected exact
+  comparison and Compose validation passed before recreation. Local Docker
+  health, health/web HTTP 200, anonymous admin/models HTTP 401, SQLite integrity
+  and foreign keys pass; 614 channels, 2 tokens, 7 API keys and 6,099 model entries
+  retained. Environment is byte-identical; 14 other container IDs unchanged.
+  One startup upstream model-catalog fetch had a connection-reset warning;
+  no model-generation request was made. Remote ccload stays at beta.6 and
+  AiToEarn remains unchanged, paused and unconnected to the model gateway.

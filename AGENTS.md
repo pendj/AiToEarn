@@ -97,8 +97,11 @@ through the old local-store app during rollback. No actual storage rollback,
 model generation, platform authorization or public publication is claimed.
 
 Model gateway checkpoint: ccload is on `147.224.48.149`, not the social host.
-Remote and local ccload now run pinned `v4.10.11-beta.6` (prerelease), healthy
-with valid SQLite databases. Remote has 3 channels/1 API access token after one
+Remote ccload runs pinned `v4.10.11-beta.6`; local was subsequently upgraded to
+pinned `v4.10.11-beta.7` (both prereleases). Both are healthy with valid SQLite
+databases. Local beta.7 retains all recorded counts; one startup upstream model
+catalog fetch had a connection-reset warning, not a health/database failure.
+Remote has 3 channels/1 API access token after one
 designated Codex Pro credential import; local retains 614 channels/2 access
 tokens. The import's upstream credential validation passed; no generation call
 was made. The local account was retained, not moved or disabled. AiToEarn has
