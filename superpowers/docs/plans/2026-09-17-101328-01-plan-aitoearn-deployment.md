@@ -78,7 +78,8 @@ No unrelated business service, data, pricing, policy, or payment state may chang
   real HTTPS metadata/admin-denial checks from the social host. Local guarded
   native integration is deployed and passes actual provider metadata, native
   registration and unauthorized-call denial; actual generation remains
-  unverified. This is not an API billing or publishing authorization.
+  unverified. A private fixed-channel quota reader is now deployed and verified;
+  this is not an API billing, generation or publishing authorization.
 - Work: reuse authorized product photos and verified current public product
   facts, retain source/configuration provenance and freshness, and use an
   explicitly authorized model connection. Start with text and existing images.
@@ -116,6 +117,26 @@ No unrelated business service, data, pricing, policy, or payment state may chang
   until a defensible subscription-only or explicitly budgeted boundary exists.
 - Verify the actual restricted model connection and unauthorized-call denial;
   these are not proof of generation, daily publishing, or overall completion.
+
+### Private quota slice (2026-09-18)
+
+- Status: complete for this slice. Real quota/cache/command-denial/forwarding
+  checks pass; zero-spend generation and overall goal acceptance remain pending.
+- Explicit user authority now covers a private read-only checker on the ccload
+  host for channel 3 only. It does not authorize generation or publication.
+- Install a root-owned fixed-command helper with a read-only SQLite lookup of
+  the pinned account and one bounded HTTPS GET to the upstream usage endpoint.
+  No refresh, reset-credit operation, admin API, inference or other-account query.
+- Keep the new client key on the social host; restrict its authorized-key entry
+  to that source IP, disable terminal/forwarding/user RC and reject every command
+  except `quota-v1`. Reuse SSH port 22; do not change sshd or restart services.
+- Return a strict sanitized schema, short freshness, bounded cache/rate limit and
+  explicit non-authorization/non-spending-cap flags. Keep all original OAuth
+  credentials on the ccload host. Provide an on-demand host-side client; leave
+  native model authority, pause, spending and scheduling untouched.
+- Verify parser/expiry/error boundaries locally, then the actual social-host
+  request, command/forwarding/source restrictions, unchanged services and exact
+  key-only rollback. Commit locally after verification.
 
 ## Outcome 5: Persistent daily automation with controlled publishing
 
@@ -188,11 +209,10 @@ These do not block independent installation and implementation work:
   The designated restricted ccload connection is deployed and verified for
   metadata/denial only. Do not rediscover accounts or treat connectivity as
   inference proof or unlimited free usage; zero-spend generation remains gated.
-  The next least-privilege option needs permission for a private read-only quota
-  check on the ccload host, limited to the designated channel and sanitized
-  allowance/credit status. It must not export account/admin credentials, open a
-  public port, purchase credits or access other accounts. Prior maintenance
-  authorization does not cover that host-level access change.
+  The private fixed-channel quota checker is now authorized, deployed and actually
+  verified. It exports no account/admin credential and adds no listener. Its
+  current snapshot is not a durable provider spending cap; existing generation
+  authority and hard-provider-limit flags remain unchanged.
 - One-time first-post and ongoing publishing authorization after exact rules,
   accounts, schedule, and fees are presented.
 - Platform-readable media and actual provider acceptance after account selection.
@@ -518,3 +538,22 @@ These do not block independent installation and implementation work:
   owned account link and its official authorization. No new deployment, push,
   public media, social connection, paid use or publication. Goal remains active
   and incomplete; do not repeat the completed upgrades or metadata checks.
+- 2026-09-18: Explicitly authorized private quota reader deployed to the ccload
+  host, with a root-owned fixed helper and exactly one source-restricted SSH key.
+  The private key was generated and retained only on the social host, outside app
+  mounts; the helper pins channel/account identity and reads only its credential
+  in memory, then performs a bounded, no-redirect HTTPS usage GET. Real sanitized
+  quota and cache reuse pass; arbitrary command, other-channel argument and SSH
+  forwarding denial pass. The first verifier expected an ERROR-suppressed SSH
+  denial detail; private VERBOSE capture fixed verification without widening
+  access. Initial baseline formatting also needed to handle containers without
+  healthchecks and was corrected before installation. One local test initially
+  used Mock where a context-manager MagicMock was required; final syntax and all
+  35 Python tests pass, including 12 quota regressions. Exact single-key append,
+  root ownership, source/helper hashes and protected rollback backup are verified.
+  All 10 ccload-host and 16 social-host containers/listeners are unchanged;
+  ccload is healthy, existing private config and designated OAuth credential are
+  unchanged, and model attempts/dispatches/budget remain zero with automation
+  paused. No new timer, generation grant, model call, refresh, paid resource,
+  social connection, publication or Git push. README contains invocation and
+  exact-key revocation; private evidence remains in `.runtime/quota-readonly`.

@@ -1,11 +1,12 @@
 # LuxSabers Social
 
-Private, single-operator AiToEarn deployment for the existing ARM server. The
-initial release has no model credentials, no connected social accounts, and no
-publishing authorization. It is not a completed social publishing service yet.
+Private, single-operator AiToEarn deployment for the existing ARM server. A
+restricted model connection and private quota reader are verified, but generation
+is not enabled. No social account or publishing grant is configured. This is not
+a completed social publishing service yet.
 
-Verified gateway/server/AI release: `b6321d67fd070f15c2ab90a959682276e5b533a7`
-(2026-09-17), with private R2 media; automation remains on `814be0f`.
+Verified gateway/AI release: `5dff12c32f2339762d597bc269aff72534c1a08b`
+(2026-09-18); server remains `b6321d6`, automation `814be0f`, with private R2 media.
 Eight services are healthy; real private HTTP, native image upload, exact R2
 download and desktop/mobile controls pass. The worker remains paused with no model
 reservations or dispatches. This is not evidence of a real generated or published
@@ -476,6 +477,74 @@ independent renewal and concurrent long-term use have not been verified. Codex
 subscription sign-in is not a general OpenAI Platform API key:
 https://learn.chatgpt.com/docs/auth . Paid-call budget remains zero, and automation
 and public publishing remain paused.
+
+## Private Codex quota reader
+
+On 2026-09-18 the user authorized this additional read-only access. It is deployed
+outside the application containers and adds no public listener or scheduled job.
+Run on `ubuntu@163.192.46.78`:
+
+```sh
+python3 /srv/luxsabers-social/scripts/codex_quota.py
+python3 /srv/luxsabers-social/scripts/verify-codex-quota.py
+```
+
+The first command returns only sanitized quota status for the pinned channel 3.
+The second also verifies cache reuse, denial of arbitrary commands/other-channel
+arguments and denial of SSH port forwarding. It reads real services, not a mock.
+Neither command generates content, refreshes OAuth, buys/resets credits, changes
+authority or publishes. The upstream usage endpoint is an internal interface
+already used by pinned ccload, not a guaranteed stable public API. An incompatible
+response, expired credential, timeout or connection failure stops the check.
+
+The client key stays on the social host at `.private/quota-readonly/id_ed25519`
+(0600) and is not mounted into any app container. The adjacent `known_hosts`
+pins the previously verified ccload SSH host key. The ccload host has exactly one
+additional `authorized_keys` line, restricted to source `163.192.46.78`, with
+`restrict` and a fixed `/usr/bin/python3 -I` command. Only `quota-v1` is accepted.
+Shells, other commands, PTY, agent/X11/port forwarding and user RC are disabled;
+sshd configuration, existing keys and ccload's image/configuration are unchanged.
+
+The root-owned helper/scope live under `/opt/luxsabers-codex-quota`. It opens the
+existing SQLite database read-only, selects only channel 3 and verifies the pinned
+account identity before making one fixed HTTPS GET, with no proxy or redirects.
+OAuth/admin credentials never reach the social host or the output. A 60-second
+sanitized cache and exclusive lock bound repeated requests; interrupted or failed
+requests retain their attempt timestamp. No raw provider response is persisted.
+Freshness and zero purchased credits are observations, not a lasting spending cap;
+`spendingCapVerified` and `grantsGeneration` are always false. No application
+preflight or model-authorization flag was weakened to accept these observations.
+
+Verified helper SHA256:
+`aef42a740b34e17b6c126bf1be2a835de5a34c1d5b9c8b60b34f99044dcf5374`.
+The installation record and exact prior authorized keys are root-only under
+`/var/lib/luxsabers-codex-quota-install`. To revoke this access, use the retained,
+reviewed installer on `147.224.48.149`:
+
+```sh
+sudo -n /usr/bin/python3 -I /home/ubuntu/ccload/.runtime/quota-readonly/install-codex-quota.py --revoke
+```
+
+Installer SHA256:
+`e0fa3d5abc78386d164b080f94714a67a4b1e58a0410135ff94f749c61d3676b`.
+Revocation removes only the exact added key, preserving later user keys. It
+restores original bytes when there are no later edits and retains code/state/audit
+files. Do not replace the whole current authorized-keys file with an old backup.
+After revocation, the client must fail while the original administrator SSH
+connection continues working. This production revocation has not been performed;
+exact restoration and later-key preservation pass local regression tests.
+
+Final real verification passed on 2026-09-18: available Pro allowance, no purchased
+credits, fresh cache reuse, four command denials and authenticated forwarding
+denial. The initial verifier expected a denial string suppressed by SSH's ERROR
+log level; private VERBOSE capture corrected the test without changing access.
+All 10 ccload-host and 16 social-host containers retained their IDs/start times,
+all listeners were unchanged, and ccload remained healthy. Existing social private
+configuration and the designated credential are unchanged; budget, model attempts
+and dispatches remain zero and automation remains paused. Baseline/verification
+records stay under each deployment's ignored `.runtime/quota-readonly` directory.
+Local syntax and all 35 Python tests pass, including 12 new quota tests. No model
+generation, social connection, public post, paid resource or Git push occurred.
 
 ## Cost and account boundaries
 

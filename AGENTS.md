@@ -14,6 +14,11 @@ Temu, community, AR, or mobile projects as part of this goal.
   existing `ccload` service at `/home/ubuntu/ccload` on `147.224.48.149`, importing
   only the designated local Codex channel, and upgrading local `/root/ccload`.
   This does not authorize other services, new public exposure or paid model use.
+- Explicit quota exception, 2026-09-18: the user authorized a private read-only
+  quota checker on `147.224.48.149`, limited to the designated Codex channel 3.
+  Use a source-restricted forced SSH command, keep OAuth credentials on that
+  host, and return only bounded sanitized allowance/credit status. No shell,
+  forwarding, other-account access, new public listener, paid inference or posts.
 - No paid API calls, purchases, social connections, or public posts without the
   corresponding explicit authorization. Current budget is zero. Workers must
   default to paused and public publishing must fail closed.
@@ -129,12 +134,24 @@ rollback boundaries are in README's model gateway
 section. Reuse the recorded SSH host identity and the key in the user's existing
 `D:\Documents\private\Oracle\147.224.48.149` directory; never print the key.
 
-Next user inputs: designate the first owned social account, and authorize a
-private, read-only quota check on `147.224.48.149` for the designated Codex channel
-only. This is beyond the prior ccload upgrade/import maintenance exception.
+Next user input: designate the first owned social account. Private, read-only
+quota checking on `147.224.48.149` for channel 3 is now explicitly authorized;
+the fixed-command checker is deployed and real verification passes. On the social
+host run `python3 /srv/luxsabers-social/scripts/codex_quota.py`; the companion
+`verify-codex-quota.py` checks cache and SSH denials. The new key stays in that
+host's `.private/quota-readonly`, outside container mounts; root-owned ccload
+helper/scope are in `/opt/luxsabers-codex-quota`. Read-only DB lookup is pinned to
+the account identity; no refresh, admin/inference call or credential export.
+Only sanitized 60-second status is returned. Four command denials, forwarding
+denial and real upstream quota pass. The first forwarding verifier failed only
+because ERROR log level hid the denial detail; private VERBOSE capture passes.
+All 26 containers and listeners across both hosts remain unchanged, as do existing
+private configs and the designated credential. Tests: syntax and 35 Python,
+including 12 new quota tests; unchanged Node behavior retains prior evidence.
+Exact key revocation and backups are in README; no service restart is needed.
 Pinned ccload's `/admin/channels/:id/oauth-usage` is admin-only and its Codex
 summary drops purchased-credit fields; the restricted model token cannot supply
 the needed zero-extra-spend check. Do not give AiToEarn an admin/OAuth credential
-or add host-level SSH access without that authority. Source and live boundary
+or widen the newly authorized fixed-command SSH access. Source and live boundary
 checks on 2026-09-18 confirm zero model attempts/dispatches, no designated account,
 zero budget and paused state; no generation/publication is proven.
