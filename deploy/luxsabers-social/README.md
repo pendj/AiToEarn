@@ -35,6 +35,12 @@ post. The existing unrelated business containers were not recreated or restarted
 
 ## Local verification
 
+In a checkout of `pendj/AiToEarn` on `main`, first run
+`cd deploy/luxsabers-social`. Commands in this guide use this deployment directory
+as their working directory, not the repository root. The root Compose file is
+the upstream quick-start and is not used for the private LuxSabers installation.
+The original `luxsabers-social` branch is retained as the import source.
+
 Requires Node.js 22.21+ or 24.5+, npm, Python 3 with Pillow, and Docker Compose for
 configuration checks. Media conversion is tested with the host's Pillow 10.2.0;
 each prepared image records the encoder version. Pillow is local tooling, not
@@ -213,6 +219,11 @@ Target: `ubuntu@163.192.46.78`; deployment directory `/srv/luxsabers-social`.
 All following commands run inside that directory.
 Transfer only committed deployment files, never local `node_modules`, `.private`,
 or unrelated workspace files. Pin `<verified-commit>` to a full local Git SHA.
+For a `main` commit, export only the tree
+`<verified-commit>:deploy/luxsabers-social`, keeping its contents directly under
+`/srv/luxsabers-social`. Do not transfer the whole fork or overwrite existing
+private configuration, runtime state, or volumes. Git integration itself does
+not update any running service.
 
 ```sh
 python3 scripts/provision.py

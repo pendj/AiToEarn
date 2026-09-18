@@ -8,6 +8,8 @@
 
 English | [简体中文](README.md) | [日本語](README_JA.md)
 
+This fork keeps the private LuxSabers deployment and operations guide in [deploy/luxsabers-social](deploy/luxsabers-social/README.md). It uses a separate Compose project with publishing paused by default, not the root quick-start configuration.
+
 **Monetize · Publish · Engage · Create — all in one platform.**
 
 AiToEarn helps OPCs (One-Person Companies), creators, brands, and businesses build, distribute, and monetize content with **AI-powered automation** across the world's most popular platforms.

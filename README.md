@@ -8,6 +8,8 @@
 
 简体中文 | [English](README_EN.md) | [日本語](README_JA.md)
 
+本分支的 LuxSabers 私有部署配置与运维说明位于 [deploy/luxsabers-social](deploy/luxsabers-social/README.md)。该部署使用独立 Compose，默认暂停自动发布，不使用根目录的快速启动配置。
+
 **Monetize · Publish · Engage · Create —— 一站式平台。**
 
 AiToEarn 通过 **AI Agent自动化**，帮助 OPC（一人公司）、创作者、品牌与企业在全球主流平台上构建、分发并变现内容。

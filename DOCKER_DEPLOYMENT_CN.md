@@ -2,6 +2,8 @@
 
 本指南帮助你使用 Docker Compose 快速部署完整的 AiToEarn 应用。
 
+LuxSabers 的私有安装使用 [独立部署说明](deploy/luxsabers-social/README.md) 和该目录的 Compose，不适用下方的根目录快速启动、默认自动登录或 Relay 配置步骤。
+
 ## 服务架构
 
 ```

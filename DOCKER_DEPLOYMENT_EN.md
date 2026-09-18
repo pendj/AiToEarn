@@ -2,6 +2,8 @@
 
 This guide helps you quickly deploy the complete AiToEarn application using Docker Compose.
 
+The private LuxSabers installation uses its [separate deployment guide](deploy/luxsabers-social/README.md) and Compose project. The root quick-start, default auto-login, and Relay setup below do not apply to that installation.
+
 ## Architecture
 
 ```

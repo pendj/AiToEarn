@@ -25,8 +25,11 @@ No unrelated business service, data, pricing, policy, or payment state may chang
   compatibility still require runtime verification.
 - Local implementation, scoped remote deployment, a new social subdomain if
   necessary, and local commits are authorized. On 2026-09-18 the user also
-  authorized delivery to public `pendj/AiToEarn`; use the independent
-  `luxsabers-social` branch and preserve its existing upstream `main` unchanged.
+  authorized delivery to public `pendj/AiToEarn`, followed by explicit `main`
+  integration. Preserve upstream source and both histories by importing the
+  independent deployment into `deploy/luxsabers-social/` without squashing.
+  Retain the `luxsabers-social` branch and existing local/remote runtime state;
+  normal non-forced push is authorized. No service rollout is part of this merge.
 - Paid calls/resources: NOT authorized, budget zero.
 - Account connection: no specific account has been designated yet.
 - First public post and ongoing publication policy: NOT authorized yet.
@@ -559,3 +562,18 @@ These do not block independent installation and implementation work:
   paused. No new timer, generation grant, model call, refresh, paid resource,
   social connection, publication or Git push. README contains invocation and
   exact-key revocation; private evidence remains in `.runtime/quota-readonly`.
+- 2026-09-18: User explicitly authorized `main` integration after branch delivery.
+  In isolated checkout `/root/needs/AiToEarn-main-integration`, merge `0e3405da`
+  imports the complete `edcef655` deployment tree below `deploy/luxsabers-social/`
+  onto upstream `9413d739`, preserving both histories without squashing. The
+  imported tree matches its source exactly before documentation updates. Root
+  changes are limited to instructions and multilingual deployment links; upstream
+  application code, root Compose and workflows are unchanged. Fresh verification
+  in the nested directory passes `npm ci` (zero known audit vulnerabilities), all
+  53 Node tests, syntax checks and all 35 Python tests including isolated Compose
+  validation. Git whitespace and ignored-private-path checks pass. Existing
+  credential screening is reused for the unchanged imported history; added
+  documentation is reviewed separately.
+  Retain the independent source branch and original local private/runtime files.
+  Delivery target is `main` via a normal non-forced push. No server deployment,
+  model generation, account connection, publication or new spending is included.

@@ -31,11 +31,21 @@ Temu, community, AR, or mobile projects as part of this goal.
 - Verify affected behavior, inspect the diff, and make local commits after useful
   implementation outcomes. Do not push without separate authorization.
 - Delivery authorization, 2026-09-18: the user supplied
-  `https://github.com/pendj/AiToEarn` and authorized commit/push. This is a public
-  upstream fork, not this independent deployment history. Use only the
-  `luxsabers-social` delivery branch (`HEAD:refs/heads/luxsabers-social`); retain
-  remote `main`, do not force-push or merge unrelated histories, and exclude all
-  credentials/private runtime data from the complete history being pushed.
+  `https://github.com/pendj/AiToEarn` and authorized commit/push, then explicitly
+  authorized merging into `main`. Canonical source is now
+  `deploy/luxsabers-social/` on that public fork's `main`, imported without
+  squashing so both upstream and deployment history remain available. Retain the
+  `luxsabers-social` source branch; do not force-push or overwrite upstream files.
+  Exclude credentials/private runtime data from the complete history being pushed.
+  Existing GitHub authentication works; no local key discovery or login is needed.
+- Run this project's commands from its own directory, never the fork root.
+  Remote runtime remains `/srv/luxsabers-social`; the original standalone local
+  checkout `/root/needs/luxsabers-social` and its private state are retained.
+  Its local `main` still tracks `origin/luxsabers-social`, not the fork's `main`.
+  Integration checkout: `/root/needs/AiToEarn-main-integration`, branch
+  `integrate/luxsabers-social-main`, tracking `origin/main`. Use its deployment
+  subdirectory for subsequent source work, and do not redeploy or transfer
+  private state merely because the Git layout changed.
 - Preserve the complete user goal: secure deployment, real generation, an
   authorized platform, persistent scheduling, actual posting and result checks.
   Deployment alone is not goal completion.

@@ -10,6 +10,7 @@
 
 - `project/aitoearn-backend` 是 Nx + pnpm 后端工作区。
 - `project/aitoearn-web` 是 Next.js + pnpm 前端项目。
+- `deploy/luxsabers-social` 是 LuxSabers 的独立私有部署项目，遵循其目录内的 `AGENTS.md` 和现有实施计划；它不使用根目录的默认 Compose。
 - 根目录主要维护 README、Docker 部署文档、`docker-compose.yml` 和展示资源。
 
 ## Package & Command Rules
@@ -18,6 +19,7 @@
 - 根目录没有统一 package，不要在根目录随手执行 install/build。
 - backend 改动优先在 `project/aitoearn-backend` 用 `pnpm nx ...` 验证，并遵循 `project/aitoearn-backend/CLAUDE.md`。
 - web 改动在 `project/aitoearn-web` 验证，优先使用 `pnpm run type-check` 和 `pnpm build`。
+- LuxSabers 部署改动在 `deploy/luxsabers-social` 执行其 README 规定的 npm/Python 检查，不在仓库根目录安装依赖或启动服务。
 - 纯文档改动至少运行 `git diff --check`。
 
 ## Documentation Rules
