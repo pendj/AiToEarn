@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "catalog": {
+    "url": "https://luxsabers.com/content/catalog/shopify-vendor-content.js",
+    "sha256": "3311f6f98ced60c496eacaa71ae697b2650484c3773c7e40585f20b42e5604b2"
+  },
+  "sources": [
+    {
+      "id": "model-003-exterior",
+      "name": "LuxSabers 003",
+      "sourceReference": "public catalog model 003; photographyRefresh model 003; Vendor page 197",
+      "rightsReference": "Existing authorized LuxSabers product photography; exact model match",
+      "targetUrl": "https://luxsabers.com/products/luxsabers-vendor-003",
+      "facts": {
+        "identity": "This is the LuxSabers 003 model.",
+        "core-options": "The product page lists Baselit RGB and Xenopixel configurations."
+      },
+      "imageNotice": "Photo is an exterior reference; it does not identify the finish, core, quantity or included items.",
+      "image": {
+        "url": "https://luxsabers.com/assets/catalog/model-003-photo-76200aea9476.webp",
+        "sha256": "76200aea9476cd6bf08abaf425904115819737d88138becee2483cd53aec8d28",
+        "type": "image/webp"
+      }
+    },
+    {
+      "id": "model-018-exterior",
+      "name": "LuxSabers 018",
+      "sourceReference": "public catalog model 018; photographyRefresh model 018; Vendor page 194",
+      "rightsReference": "Existing authorized LuxSabers product photography; exact model match",
+      "targetUrl": "https://luxsabers.com/products/luxsabers-vendor-018",
+      "facts": {
+        "identity": "This is the LuxSabers 018 model.",
+        "core-options": "The product page lists Baselit RGB and Xenopixel configurations."
+      },
+      "imageNotice": "Photo is an exterior reference; it does not identify the finish, core, quantity or included items.",
+      "image": {
+        "url": "https://luxsabers.com/assets/catalog/model-018-photo-54dd04548d58.webp",
+        "sha256": "54dd04548d58df62afc8b5be0294b87ff9def050e4850d4e9817589a44f711a8",
+        "type": "image/webp"
+      }
+    }
+  ]
+}
