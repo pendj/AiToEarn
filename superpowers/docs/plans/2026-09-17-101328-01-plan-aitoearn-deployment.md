@@ -24,7 +24,9 @@ No unrelated business service, data, pricing, policy, or payment state may chang
   AI/shared-backend changes before that commit. Actual startup and API/UI
   compatibility still require runtime verification.
 - Local implementation, scoped remote deployment, a new social subdomain if
-  necessary, and local commits are authorized. No push is authorized.
+  necessary, and local commits are authorized. On 2026-09-18 the user also
+  authorized delivery to public `pendj/AiToEarn`; use the independent
+  `luxsabers-social` branch and preserve its existing upstream `main` unchanged.
 - Paid calls/resources: NOT authorized, budget zero.
 - Account connection: no specific account has been designated yet.
 - First public post and ongoing publication policy: NOT authorized yet.

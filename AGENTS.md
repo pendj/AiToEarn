@@ -30,6 +30,12 @@ Temu, community, AR, or mobile projects as part of this goal.
   inspect actual runtime behavior; mock tests do not prove real publishing.
 - Verify affected behavior, inspect the diff, and make local commits after useful
   implementation outcomes. Do not push without separate authorization.
+- Delivery authorization, 2026-09-18: the user supplied
+  `https://github.com/pendj/AiToEarn` and authorized commit/push. This is a public
+  upstream fork, not this independent deployment history. Use only the
+  `luxsabers-social` delivery branch (`HEAD:refs/heads/luxsabers-social`); retain
+  remote `main`, do not force-push or merge unrelated histories, and exclude all
+  credentials/private runtime data from the complete history being pushed.
 - Preserve the complete user goal: secure deployment, real generation, an
   authorized platform, persistent scheduling, actual posting and result checks.
   Deployment alone is not goal completion.
